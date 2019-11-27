@@ -1,0 +1,4 @@
+1. Kretanje igraca
+2. Design
+3. AI za Timona i Pumubu
+4. Racunanje score i zamke
