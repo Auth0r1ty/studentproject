@@ -1,24 +1,27 @@
 import pygame
 from enum import Enum
 from Player import Player
+from GameStaticObject import GameStaticObject
 
 pygame.init()
 
 
-
 ########################################################################################################
+
+
 
 
 # elementi koji se ne krecu na mapi da pratimo na mapi (preko enumeracije)
 class StaticEl(Enum):
     path = 1
     wall = 2
-    enter = 8
-    trap = 3
-    pathPlayer1 = 4   #
-    pathPlayer2 = 5
-    pathPlayer3 = 6
-    pathPlayer4 = 7
+    enter = 3
+    trap = 4
+    endmap = 5
+    pathPlayer1 = 6   #
+    pathPlayer2 = 7
+    pathPlayer3 = 8
+    pathPlayer4 = 9
 
 
 size = (800, 600)
@@ -44,20 +47,12 @@ path = pygame.transform.scale(path, (50, 50))
 # define player image
 timon = pygame.image.load("img/timon.png")
 timon = pygame.transform.scale(timon, (50, 50))
+#enter image
+enter = pygame.image.load("img/sapice_red.png")
+enter = pygame.transform.scale(enter, (50, 50))
 
-i = 0;
 
-# napravi se objekat tipa Player
-player = Player(timon, 50, 50, 250, 400)
-player1 = Player(timon, 50, 50, 250, 350)
 
-# sprites_list sadrzi sve sprit-ove napravljene u igrici
-sprite_list = pygame.sprite.Group()
-sprite_list.add(player)
-sprite_list.add(player1)
-
-player.sprite_list = sprite_list
-player1.sprite_list = sprite_list
 
 
 gameMap = (
@@ -102,9 +97,41 @@ gameMap = (
 
 ########################################################################################################
 
+# sprites_list sadrzi sve sprit-ove napravljene u igrici
+sprite_list = pygame.sprite.Group()
+
+for i in range(0, 12):
+    for j in range(0, 16):
+        if gameMap[i][j] == StaticEl.wall:
+            obj = GameStaticObject(wall, 50, 50, j*50, i*50)
+            sprite_list.add(obj)
+i = -1
+for j in range(0, 16):
+    obj = GameStaticObject(wall, 50, 50, j * 50, i * 50)
+    sprite_list.add(obj)
+i = 12
+for j in range(0, 16):
+    obj = GameStaticObject(wall, 50, 50, j * 50, i * 50)
+    sprite_list.add(obj)
+j = -1
+for i in range(0, 12):
+    obj = GameStaticObject(wall, 50, 50, j * 50, i * 50)
+    sprite_list.add(obj)
+j = 16
+for i in range(0, 12):
+    obj = GameStaticObject(wall, 50, 50, j * 50, i * 50)
+    sprite_list.add(obj)
+
+# napravi se objekat tipa Player
+player = Player(timon, 50, 50, 250, 400)
+player1 = Player(timon, 50, 50, 250, 350)
 
 
+sprite_list.add(player)
+sprite_list.add(player1)
 
+player.sprite_list = sprite_list
+player1.sprite_list = sprite_list
 
 
 
@@ -123,7 +150,7 @@ while carryOn:
         # --- Drawing code should go here
         # First, clear the screen to white.
 
-    keys = pygame.key.get_pressed ()
+    keys = pygame.key.get_pressed()
     if keys[pygame.K_LEFT]:
         player.movePlayer(-2, 0, sprite_list)
         # player.moveLeft (2, timon)
@@ -138,7 +165,7 @@ while carryOn:
         # player.moveDown (2, timon)
 
     sprite_list.update()
-    # screen.fill(WHITE)
+    screen.fill(WHITE)
 
     #iscrtavanje mape
     for i in range(0, 12):
@@ -147,6 +174,8 @@ while carryOn:
                 screen.blit(path, (j*50, i*50))
             elif (gameMap[i][j] == StaticEl.wall):
                 screen.blit(wall, (j * 50, i * 50))
+            elif (gameMap[i][j] == StaticEl.enter):
+                screen.blit(enter, (j * 50, i * 50))
     # The you can draw different shapes and lines or add text to your background stage.
 
     sprite_list.draw(screen)
