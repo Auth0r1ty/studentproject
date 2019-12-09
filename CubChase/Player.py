@@ -2,6 +2,9 @@ import pygame
 
 
 class Player (pygame.sprite.Sprite):
+
+    sprite_list = None
+
     # u slucaju vise slika, proslediti sliku kao argument konstuktora
     def __init__(self, image, width, height, x, y):
         # poziv konstruktora od roditelja
@@ -36,3 +39,29 @@ class Player (pygame.sprite.Sprite):
     def moveDown(self, pixels, image):
         self.rect.y += pixels
         self.image = image
+
+    def movePlayer(self, x, y, sprite_list):
+        self.rect.x += x
+        self.rect.y += y
+
+        collision_list = pygame.sprite.spritecollide (self, sprite_list, False)
+        for temp in collision_list:
+            if temp != self:
+                if x > 0:       # igrac se pomera desno
+                    self.rect.right = temp.rect.left
+                if x < 0:       # levo
+                    self.rect.left = temp.rect.right
+                if y > 0:       # dole
+                    self.rect.bottom = temp.rect.top
+                if y < 0:       # gore
+                    self.rect.top = temp.rect.bottom
+
+        """self.rect.y += y
+
+        collision_list1 = pygame.sprite.spritecollide (self, sprite_list, False)
+        for temp in collision_list:
+            if temp != self:
+                if y > 0:       # igrac se pomera dole
+                    self.rect.bottom = temp.rect.top
+                elif y < 0:           # gore
+                    self.rect.top = temp.rect.bottom"""

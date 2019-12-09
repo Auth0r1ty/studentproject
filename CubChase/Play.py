@@ -48,10 +48,17 @@ timon = pygame.transform.scale(timon, (50, 50))
 i = 0;
 
 # napravi se objekat tipa Player
-player = Player(timon, 50, 50, 150, 200)
+player = Player(timon, 50, 50, 250, 400)
+player1 = Player(timon, 50, 50, 250, 350)
+
 # sprites_list sadrzi sve sprit-ove napravljene u igrici
-sprites_list = pygame.sprite.Group()
-sprites_list.add(player)
+sprite_list = pygame.sprite.Group()
+sprite_list.add(player)
+sprite_list.add(player1)
+
+player.sprite_list = sprite_list
+player1.sprite_list = sprite_list
+
 
 gameMap = (
         # 1 (9)             2 (10)           3 (11)       4 (12)        5(13)           6(14)         7(15)          8(16)
@@ -118,15 +125,19 @@ while carryOn:
 
     keys = pygame.key.get_pressed ()
     if keys[pygame.K_LEFT]:
-        player.moveLeft (2, timon)
+        player.movePlayer(-2, 0, sprite_list)
+        # player.moveLeft (2, timon)
     if keys[pygame.K_RIGHT]:
-        player.moveRight (2, timon)
+        player.movePlayer (2, 0, sprite_list)
+        # player.moveRight (2, timon)
     if keys[pygame.K_UP]:
-        player.moveUp (2, timon)
+        player.movePlayer (0, -2, sprite_list)
+        # player.moveUp (2, timon)
     if keys[pygame.K_DOWN]:
-        player.moveDown (2, timon)
+        player.movePlayer (0, 2, sprite_list)
+        # player.moveDown (2, timon)
 
-    sprites_list.update()
+    sprite_list.update()
     # screen.fill(WHITE)
 
     #iscrtavanje mape
@@ -138,7 +149,7 @@ while carryOn:
                 screen.blit(wall, (j * 50, i * 50))
     # The you can draw different shapes and lines or add text to your background stage.
 
-    sprites_list.draw(screen)
+    sprite_list.draw(screen)
 
     # --- Go ahead and update the screen with what we've drawn.
     pygame.display.flip()
