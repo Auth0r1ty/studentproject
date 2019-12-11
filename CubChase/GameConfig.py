@@ -1,8 +1,16 @@
 from enum import Enum
 import pygame
+import os
 from GameStaticObject import GameStaticObject
 from Player import Player
 
+
+app_path = os.path.dirname(__file__)+'/'
+menu_image_path = app_path + 'img/' #putanja do slike za glavni meni
+music_path = app_path + 'img/' #putanja do muzike za glavni meni
+score1_image_path = app_path + 'img/' #putanja do slike za skor (jedan igrac)
+height = 594
+width = 600
 
 ########################################   IMAGES   ###############################################
 
