@@ -47,7 +47,7 @@ class Player (pygame.sprite.Sprite):
             self.rect.x += x
 
         if (self.rect.x % 50) == 0:
-
+            self.rect.y += y
         # da ne moze da se krece dijagonalno
         if self.rect.y % 50 == 0:
             self.rect.x += x

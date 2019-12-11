@@ -25,16 +25,16 @@ while carryOn:
         # First, clear the screen to white.
     keys = pygame.key.get_pressed()
     if keys[pygame.K_LEFT]:
-        config.player.movePlayer(-config.speed, 0, config.sprite_list, config.gameMap)
+        config.player.movePlayer(-config.speed, 0, config.sprite_list)
         # player.moveLeft (2, timon)
     if keys[pygame.K_RIGHT]:
-        config.player.movePlayer(config.speed, 0, config.sprite_list, config.gameMap)
+        config.player.movePlayer(config.speed, 0, config.sprite_list)
         # player.moveRight (2, timon)
     if keys[pygame.K_UP]:
-        config.player.movePlayer(0, -config.speed, config.sprite_list, config.gameMap)
+        config.player.movePlayer(0, -config.speed, config.sprite_list)
         # player.moveUp (2, timon)
     if keys[pygame.K_DOWN]:
-        config.player.movePlayer(0, config.speed, config.sprite_list, config.gameMap)
+        config.player.movePlayer(0, config.speed, config.sprite_list)
         # player.moveDown (2, timon)
     config.sprite_list.update()
     screen.fill(WHITE)
