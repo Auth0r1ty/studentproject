@@ -41,8 +41,12 @@ class Player (pygame.sprite.Sprite):
         self.image = image
 
     def movePlayer(self, x, y, sprite_list):
-        self.rect.x += x
-        self.rect.y += y
+
+        if (self.rect.y % 50) == 0:
+            self.rect.x += x
+
+        if (self.rect.x % 50) == 0:
+            self.rect.y += y
 
         collision_list = pygame.sprite.spritecollide (self, sprite_list, False)
         for temp in collision_list:
