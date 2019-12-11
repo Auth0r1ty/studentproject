@@ -5,6 +5,13 @@
       <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/studentproject.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/studentproject.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+
+
+      <change beforePath="$PROJECT_DIR$/CubChase/GameConfig.py" beforeDir="false" afterPath="$PROJECT_DIR$/CubChase/GameConfig.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CubChase/GameStaticObject.py" beforeDir="false" afterPath="$PROJECT_DIR$/CubChase/GameStaticObject.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CubChase/Play.py" beforeDir="false" afterPath="$PROJECT_DIR$/CubChase/Play.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CubChase/Player.py" beforeDir="false" afterPath="$PROJECT_DIR$/CubChase/Player.py" afterDir="false" />
+
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -25,7 +32,11 @@
   </component>
   <component name="ProjectId" id="1UTciRKDkaQS5N2lXMMlBS6i9OQ" />
   <component name="PropertiesComponent">
+
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+
+    <property name="last_opened_file_path" value="D:/Programi/Git/bin/git.exe" />
+
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="RunDashboard">

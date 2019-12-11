@@ -45,8 +45,10 @@ while carryOn:
                 screen.blit(config.path, (j * 50, i * 50))
             elif config.gameMap[i][j] == config.StaticEl.wall:
                 screen.blit(config.wall, (j * 50, i * 50))
-            elif config.gameMap[i][j] == config.StaticEl.enter:
+            elif config.gameMap[i][j] == config.StaticEl.enter: # pathPlayer1
                 screen.blit(config.enter, (j * 50, i * 50))
+            elif config.gameMap[i][j] == config.StaticEl.pathPlayer1:
+                screen.blit(config.pathPlayer1, (j * 50, i * 50))
     # The you can draw different shapes and lines or add text to your background stage.
     config.sprite_list.draw(screen)
     # --- Go ahead and update the screen with what we've drawn.
