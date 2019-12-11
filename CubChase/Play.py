@@ -25,16 +25,16 @@ while carryOn:
         # First, clear the screen to white.
     keys = pygame.key.get_pressed()
     if keys[pygame.K_LEFT]:
-        config.player.movePlayer(-config.speed, 0, config.sprite_list)
+        config.player.movePlayer(-config.speed, 0, config.sprite_list, config.gameMap)
         # player.moveLeft (2, timon)
     if keys[pygame.K_RIGHT]:
-        config.player.movePlayer(config.speed, 0, config.sprite_list)
+        config.player.movePlayer(config.speed, 0, config.sprite_list, config.gameMap)
         # player.moveRight (2, timon)
     if keys[pygame.K_UP]:
-        config.player.movePlayer(0, -config.speed, config.sprite_list)
+        config.player.movePlayer(0, -config.speed, config.sprite_list, config.gameMap)
         # player.moveUp (2, timon)
     if keys[pygame.K_DOWN]:
-        config.player.movePlayer(0, config.speed, config.sprite_list)
+        config.player.movePlayer(0, config.speed, config.sprite_list, config.gameMap)
         # player.moveDown (2, timon)
     config.sprite_list.update()
     screen.fill(WHITE)
@@ -45,8 +45,10 @@ while carryOn:
                 screen.blit(config.path, (j * 50, i * 50))
             elif config.gameMap[i][j] == config.StaticEl.wall:
                 screen.blit(config.wall, (j * 50, i * 50))
-            elif config.gameMap[i][j] == config.StaticEl.enter:
+            elif config.gameMap[i][j] == config.StaticEl.enter: # pathPlayer1
                 screen.blit(config.enter, (j * 50, i * 50))
+            elif config.gameMap[i][j] == config.StaticEl.pathPlayer1:
+                screen.blit(config.pathPlayer1, (j * 50, i * 50))
     # The you can draw different shapes and lines or add text to your background stage.
     config.sprite_list.draw(screen)
     # --- Go ahead and update the screen with what we've drawn.
