@@ -12,7 +12,7 @@ class GameStaticObject(pygame.sprite.Sprite):
         self.image = pygame.Surface([width, height])
         self.image = image
         # maska oko slike, koristi se za detektovanje kolizije sa drugim Sprite-ovima
-        self.mask = pygame.mask.from_surface(self.image)
+        # self.mask = pygame.mask.from_surface(self.image)
         # napravi se pravougaonik cije su dimenzije jednake dimenziji slike
         self.rect = self.image.get_rect()
         # pocetni polozaj igraca
