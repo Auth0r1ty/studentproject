@@ -26,11 +26,11 @@ class Player (pygame.sprite.Sprite):
         self.rect.x = x
         self.rect.y = y
 
-    def movePlayer(self, x, y, sprite_list, gameMap):
+    def movePlayer(self, x, y, sprite_list):
 
         if self.rect.y % 50 == 0 & self.rect.x % 50 == 0:
             # i == y, j == x koordinatama
-            gameMap[self.rect.y // 50][self.rect.x // 50] = config.StaticEl(self.pathPlayer)
+            config.gameMap[self.rect.y // 50][self.rect.x // 50] = config.StaticEl(self.pathPlayer)
 
 
     def moveUp(self, pixels, image):
