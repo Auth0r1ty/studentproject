@@ -5,15 +5,7 @@ from GameStaticObject import GameStaticObject
 from Player import Player
 
 
-app_path = os.path.dirname(__file__)+'/'
-menu_image_path = app_path + 'img/' #putanja do slike za glavni meni
-music_path = app_path + 'img/' #putanja do muzike za glavni meni
-score1_image_path = app_path + 'img/' #putanja do slike za skor (jedan igrac)
-height = 594
-width = 600
-
 ########################################   IMAGES   ###############################################
-
 
 # define wall image
 wall = pygame.image.load("img/wall.png")
@@ -29,7 +21,9 @@ pathPlayer1 = pygame.transform.scale(pathPlayer1, (50, 50))
 # enter image
 enter = pygame.image.load("img/sapice_red.png")
 enter = pygame.transform.scale(enter, (50, 50))
-
+# define path for images (menu, score) and music
+app_path = os.path.dirname(__file__)+'/'
+files_path = menu_image_path = app_path + 'img/'
 
 # ########################################   ENUMS   ################################################
 
@@ -47,7 +41,8 @@ class StaticEl(Enum):
 
 # ######################################   CONSTANTS   ##############################################
 
-
+height = 600
+width = 800
 speed = 5
 fps = 60
 sprite_list = pygame.sprite.Group()

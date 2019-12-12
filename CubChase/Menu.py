@@ -44,7 +44,7 @@ class Menu():
     def __init__(self, screen, functions, bg_color=(0, 0, 0)):
         self.active = True
         self.screen = screen
-        self.background = pygame.image.load(menu_image_path + "Menu.jpg")
+        self.background = pygame.image.load(files_path + "Menu.jpg")
         self.window_width = self.screen.get_rect().width
         self.window_height = self.screen.get_rect().height
         self.bg_color = bg_color
@@ -55,14 +55,14 @@ class Menu():
             menu_option = MenuOptions(option, functions[option])
             height2 = menu_option.rect.height
 
-            pos_x = self.window_width - 440
+            pos_x = self.window_width - 550
             pos_y = self.window_height - 430 + index * height2 * 2.2
             if menu_option.text == "Single player":
-                menu_option.set_position(200, 180)
+                menu_option.set_position(250, 180)
             elif menu_option.text == "Controls":
-                menu_option.set_position(220, height - 205)
+                menu_option.set_position(250, height - 205)
             elif menu_option.text == "Exit":
-                menu_option.set_position(260, height - 135)
+                menu_option.set_position(250, height - 135)
             else:
                 menu_option.set_position(pos_x, pos_y)
             self.options.append(menu_option)

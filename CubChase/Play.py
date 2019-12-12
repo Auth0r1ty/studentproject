@@ -11,7 +11,7 @@ class Play():
     def __init__(self):
         pygame.init()
         pygame.display.set_caption("Cub chase menu")
-        music = pygame.mixer.music.load(music_path + "menu.mp3")
+        music = pygame.mixer.music.load(files_path + "menu.mp3")
         pygame.mixer.music.play(-1)
         pygame.mixer.music.set_volume(0.5)
         self.font = pygame.font.SysFont("monospace", 30)
@@ -107,7 +107,7 @@ class Play():
         # pygame.mixer.music.pause()
         pygame.mixer.music.set_volume(0.3)
         self.main_menu.active = False
-        start_screen_image = pygame.transform.scale(pygame.image.load(menu_image_path + "Controls.jpg"), (width,
+        start_screen_image = pygame.transform.scale(pygame.image.load(files_path + "Controls.jpg"), (width,
                                                                                                         height))
         self.screen.blit(start_screen_image, (0, 0))
         pygame.display.update()
