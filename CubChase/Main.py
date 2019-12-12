@@ -1,5 +1,5 @@
-from Play import *
+from Menu import *
 
 if __name__ == '__main__':
-    play = Play()
-    play.run_game()
+    start_menu = StartMenu()
+    start_menu.run_game()
