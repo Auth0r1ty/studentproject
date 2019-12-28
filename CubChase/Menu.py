@@ -3,9 +3,7 @@ from Play import *
 from pygame.locals import *
 from collections import OrderedDict
 import sys
-from multiprocessing import Process
 from copy import deepcopy
-import copy
 
 active = None
 
@@ -159,7 +157,7 @@ class StartMenu():
         self.start_menu()
 
     def one_player(self):
-        play = Play(self.screen, self.clock, deepcopy(gameMap))
+        play = Play(1, self.screen, self.clock, deepcopy(gameMap))
         process = mp.Process (target=play.one_player())
         process.start ()
         process.join ()
@@ -167,10 +165,27 @@ class StartMenu():
         pygame.mixer.music.play (-1)
         return
 
-
     def two_players_offline(self):
-        """play = Play (self.screen, self.clock, deepcopy(gameMap))
-        play.two_players_offline_process()"""
+        play = Play(2, self.screen, self.clock, deepcopy(gameMap))
+        process = mp.Process (target=play.two_players_firstPlayer())
+        #process1 = mp.Process (target=play.two_players_secondPlayer())
+
+        process.start()
+        #process1.start()
+        process.join ()
+        #process1.join ()
+
+        pygame.mouse.set_visible (True)
+        pygame.mixer.music.play (-1)
 
     def two_players_online(self):
         a = 5
+
+    # proba
+    def two_players_firstPlayer(self):
+        for i in range(0, 10):
+            print("Prvi proces", i)
+
+    def two_players_secondPlayer(self):
+        for i in range(0, 10):
+            print("Drugi proces", i)
