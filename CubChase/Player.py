@@ -7,7 +7,7 @@ class Player (pygame.sprite.Sprite):
     pathPlayer = None
 
     # u slucaju vise slika, proslediti sliku kao argument konstuktora
-    def __init__(self, image, pathPlayer, width, height, x, y):
+    def __init__(self, image, pathPlayer, width, height, x, y, gameMap):
         # poziv konstruktora od roditelja
         super ().__init__()
 
@@ -27,37 +27,29 @@ class Player (pygame.sprite.Sprite):
         self.rect.x = x
         self.rect.y = y
 
+        self.gameMap = gameMap
+
     def movePlayer(self, x, y, sprite_list):
 
+        # ostavljanje tragova
         if self.rect.y % 50 == 0 & self.rect.x % 50 == 0:
-            # i == y, j == x koordinatama
-            config.gameMap[self.rect.y // 50][self.rect.x // 50] = config.StaticEl(self.pathPlayer)
+            if self.gameMap[self.rect.y // 50][self.rect.x // 50] == config.StaticEl(1):
+                # i == y, j == x koordinatama
+                self.gameMap[self.rect.y // 50][self.rect.x // 50] = config.StaticEl(self.pathPlayer)
 
+        rectXpomocna = self.rect.x
+        rectYpomocna = self.rect.y
 
-    def moveUp(self, pixels, image):
-        self.rect.y -= pixels
-        self.image = image
-
-    def moveDown(self, pixels, image):
-        self.rect.y += pixels
-        self.image = image
-
-    def movePlayer(self, x, y, sprite_list):
-
-        if (self.rect.y % 50) == 0:
-            self.rect.x += x
-
-        if (self.rect.x % 50) == 0:
-            self.rect.y += y
         # da ne moze da se krece dijagonalno
         if self.rect.y % 50 == 0:
-            self.rect.x += x
+            rectXpomocna += x
         if self.rect.x % 50 == 0:
-            self.rect.y += y
+            rectYpomocna += y
 
+        self.rect.x = rectXpomocna
+        self.rect.y = rectYpomocna
 
-
-        # kolizija sa zidom
+        # kolizija sa zidom i drugim igracima
         collision_list = pygame.sprite.spritecollide (self, sprite_list, False)
         for temp in collision_list:
             if temp != self:

@@ -1,77 +1,76 @@
 import pygame
 import GameConfig as config
-import Menu as menu
-import sys
-
+from Player import Player
+import multiprocessing as mp
 
 class Play():
 
-    def __init__(self):
-        self.polje = True #ubaceno cisto nesto da ima
+    def __init__(self, screen, clock, gameMap):
+        self.screen = screen
+        self.clock = clock
+        self.gameMap = gameMap
+        self.sprite_list = pygame.sprite.Group()
+        config.map_init (self.sprite_list)
+        # self.queue = mp.Queue()
 
+    # region One player
     def one_player(self):
-        menu.active = False
+        player = Player(config.simba, 5, 50, 50, 500, 400, self.gameMap)
+        self.sprite_list.add(player)
         pygame.mouse.set_visible(False)
         pygame.mixer.music.stop()
         carryOn = True
-        size = (800, 600)
-        screen = pygame.display.set_mode(size)
-        pygame.display.set_caption("CubChaseTest")
-        clock = pygame.time.Clock()
-        WHITE = (255, 255, 255)
-        config.map_init()
 
-        # -------- Main Program Loop -----------
         while carryOn:
-            # --- Main event loop
-            for event in pygame.event.get():  # User did something
-                if event.type == pygame.QUIT:  # If user clicked close
-                    carryOn = False  # Flag that we are done so we exit this loop
-                # --- Game logic should go here
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    carryOn = False
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_x:
+                        carryOn = False
 
-                # --- Drawing code should go here
-                # First, clear the screen to white.
             keys = pygame.key.get_pressed()
             if keys[pygame.K_LEFT]:
-                config.player.movePlayer(-config.speed, 0, config.sprite_list)
-                # player.moveLeft (2, timon)
+                player.movePlayer(-config.speed, 0, self.sprite_list)
             if keys[pygame.K_RIGHT]:
-                config.player.movePlayer(config.speed, 0, config.sprite_list)
-                # player.moveRight (2, timon)
+                player.movePlayer(config.speed, 0, self.sprite_list)
             if keys[pygame.K_UP]:
-                config.player.movePlayer(0, -config.speed, config.sprite_list)
-                # player.moveUp (2, timon)
+                player.movePlayer(0, -config.speed, self.sprite_list)
             if keys[pygame.K_DOWN]:
-                config.player.movePlayer(0, config.speed, config.sprite_list)
-                # player.moveDown (2, timon)
-            config.sprite_list.update()
-            screen.fill(WHITE)
+                player.movePlayer(0, config.speed, self.sprite_list)
+
             # iscrtavanje mape
             for i in range(0, 12):
                 for j in range(0, 16):
-                    if config.gameMap[i][j] == config.StaticEl.path:
-                        screen.blit(config.path, (j * 50, i * 50))
-                    elif config.gameMap[i][j] == config.StaticEl.wall:
-                        screen.blit(config.wall, (j * 50, i * 50))
-                    elif config.gameMap[i][j] == config.StaticEl.enter:  # pathPlayer1
-                        screen.blit(config.enter, (j * 50, i * 50))
-                    elif config.gameMap[i][j] == config.StaticEl.pathPlayer1:
-                        screen.blit(config.pathPlayer1, (j * 50, i * 50))
-            # The you can draw different shapes and lines or add text to your background stage.
-            config.sprite_list.draw(screen)
-            # --- Go ahead and update the screen with what we've drawn.
+                    if self.gameMap[i][j] == config.StaticEl.path:
+                        self.screen.blit(config.path, (j * 50, i * 50))
+                    elif self.gameMap[i][j] == config.StaticEl.wall:
+                        self.screen.blit(config.wall, (j * 50, i * 50))
+                    elif self.gameMap[i][j] == config.StaticEl.enter:
+                        self.screen.blit(config.enter, (j * 50, i * 50))
+                    elif self.gameMap[i][j] == config.StaticEl.pathPlayer1:
+                        self.screen.blit(config.pathPlayer1, (j * 50, i * 50))
+                    elif self.gameMap[i][j] == config.StaticEl.pathPlayer2:
+                        self.screen.blit (config.pathPlayer2, (j * 50, i * 50))
+
+            # iscrtavanje svih sprit-ova (igraci, zid)
+            self.sprite_list.update ()
+            self.sprite_list.draw(self.screen)
+
+            # iscrtavanje celog ekrana
             pygame.display.flip()
-            # --- Limit to 60 frames per second
-            clock.tick(config.fps)
+            self.clock.tick(config.fps)
 
-        # Once we have exited the main program loop we can stop the game engine:
+        return
+    # endregion
 
+    # region Two players
+    def two_players_1stplayer(self):
+        a = 5
 
-        pygame.quit()
-        sys.exit()
-
-    def two_players_offline(self):
-        print("aa")
+    def two_players_2ndplayer(self):
+        a = 5
+    #endregion
 
     def two_players_online(self):
         print("aa")

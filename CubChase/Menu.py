@@ -3,6 +3,9 @@ from Play import *
 from pygame.locals import *
 from collections import OrderedDict
 import sys
+from multiprocessing import Process
+from copy import deepcopy
+import copy
 
 active = None
 
@@ -11,7 +14,7 @@ class MenuOptions(pygame.font.Font):
 
     def __init__(self, text, function,
                  position=(0, 0), font=None, font_size=50, font_color=(221, 221, 0)):
-        pygame.font.Font.__init__(self, font, font_size)
+        super().__init__(font, font_size)
         self.text = text
         self.function = function
         self.font_size = font_size
@@ -90,24 +93,23 @@ class StartMenu():
 
     def __init__(self):
         pygame.init()
-        pygame.display.set_caption("Cub chase menu")
+        pygame.display.set_caption("Cub chase")
         music = pygame.mixer.music.load(files_path + "menu.mp3")
         pygame.mixer.music.play(-1)
         pygame.mixer.music.set_volume(0.5)
         self.font = pygame.font.SysFont("monospace", 30)
         self.clock = pygame.time.Clock()
         self.screen = pygame.display.set_mode((width, height))
-        self.play = Play()
         self.main_menu = self.activate_menu()
 
     def activate_menu(self):
         main_menu = Menu(self.screen,
                            OrderedDict(
-                               [('Single player', self.play.one_player),
+                               [('Single player', self.one_player),
 
-                                ('Multiplayer - Offline', self.play.two_players_offline),
+                                ('Multiplayer - Offline', self.two_players_offline),
 
-                                ('Multiplayer - Online', self.play.two_players_online),
+                                ('Multiplayer - Online', self.two_players_online),
 
                                 ('Controls', self.show_controls),
 
@@ -155,3 +157,20 @@ class StartMenu():
 
     def run_game(self):
         self.start_menu()
+
+    def one_player(self):
+        play = Play(self.screen, self.clock, deepcopy(gameMap))
+        process = mp.Process (target=play.one_player())
+        process.start ()
+        process.join ()
+        pygame.mouse.set_visible (True)
+        pygame.mixer.music.play (-1)
+        return
+
+
+    def two_players_offline(self):
+        """play = Play (self.screen, self.clock, deepcopy(gameMap))
+        play.two_players_offline_process()"""
+
+    def two_players_online(self):
+        a = 5
