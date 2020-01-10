@@ -37,7 +37,10 @@ class Enemy (pygame.sprite.Sprite):
         if self.gameMap[self.rect.y // 50][self.rect.x // 50 + 1] == config.StaticEl.path:
             lista.append (4)
 
-        putanja = (random.randint (0, len (lista))) + 1
+        try:
+            putanja = random.choice(lista)
+        except:
+            putanja = 0
 
         if putanja == 1:
             self.decisionY = -config.speed
@@ -51,6 +54,9 @@ class Enemy (pygame.sprite.Sprite):
         elif putanja == 4:
             self.decisionY = 0
             self.decisionX = config.speed
+        else:
+            self.decisionX = 0
+            self.decisionY = 0
 
     def moveEnemy(self, sprite_list):     #sprite list je lista objekata (zidovi, igraci i ostalo)
         if(self.rect.x % 50 == 0):
