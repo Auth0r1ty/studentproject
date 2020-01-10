@@ -1,6 +1,7 @@
 import pygame
 import GameConfig as config
 from Player import Player
+from Enemy import Enemy
 import multiprocessing as mp
 
 class Play():
@@ -19,6 +20,9 @@ class Play():
         self.player1 = Player (config.simba, 5, 50, 50, 400, 400, self.gameMap)
         self.sprite_list.add (self.player1)
         self.carryOn1 = True
+
+        self.enemy1 = Enemy(config.nala, 50, 50, 300, 50, self.gameMap)
+        self.sprite_list.add(self.enemy1)
 
         if brojIgraca == 2:
             self.player2 = Player (config.nala, 6, 50, 50, 500, 400, self.gameMap)
@@ -45,6 +49,11 @@ class Play():
                 self.player1.movePlayer(0, -config.speed, self.sprite_list)
             if keys[pygame.K_DOWN]:
                 self.player1.movePlayer(0, config.speed, self.sprite_list)
+
+            #enemy movement
+
+            self.enemy1.moveEnemy(self.sprite_list)
+
 
             # iscrtavanje mape
             for i in range(0, 12):
