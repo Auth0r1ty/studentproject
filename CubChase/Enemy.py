@@ -38,7 +38,7 @@ class Enemy (pygame.sprite.Sprite):
             lista.append (4)
 
         try:
-            putanja = random.choice(lista)
+            putanja = 4
         except:
             putanja = 0
 

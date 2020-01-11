@@ -1,6 +1,7 @@
 from enum import Enum
 import pygame
 import os
+import Field
 from GameStaticObject import GameStaticObject
 from Player import Player
 
@@ -37,6 +38,14 @@ files_path = app_path + 'img/'
 
 # ########################################   ENUMS   ################################################
 
+
+class FieldType(Enum):
+    path = 1
+    wall = 2
+    enter = 3
+    trap = 4
+    pathPlayer1 = 5   #
+    pathPlayer2 = 6
 
 class StaticEl(Enum):
     path = 1
