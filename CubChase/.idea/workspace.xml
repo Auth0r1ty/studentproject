@@ -88,14 +88,20 @@
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/Enemy.py</url>
-          <line>56</line>
-          <option name="timeStamp" value="11" />
+          <line>120</line>
+          <option name="timeStamp" value="27" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/Enemy.py</url>
+          <line>126</line>
+          <option name="timeStamp" value="28" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
     <watches-manager>
       <configuration name="PythonConfigurationType">
         <watch expression="gameMap" />
+        <watch expression="i" />
       </configuration>
     </watches-manager>
   </component>

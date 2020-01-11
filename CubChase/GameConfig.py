@@ -115,10 +115,6 @@ def map_init(sprite_list):
                 obj.crossroadCheck()
                 gameTerrain[i][j] = obj
 
-
-
-
-
     # popravka da igraci ne izlaze van mape
     i = -1
     for j in range(0, 16):

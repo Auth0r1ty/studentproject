@@ -7,9 +7,13 @@ class Player (pygame.sprite.Sprite):
     pathPlayer = None
 
     # u slucaju vise slika, proslediti sliku kao argument konstuktora
-    def __init__(self, image, pathPlayer, width, height, x, y, gameMap):
+    def __init__(self, image, pathPlayer, width, height, x, y, gameMap, lives: int = 3):
         # poziv konstruktora od roditelja
         super ().__init__()
+
+        #broj zivota
+        self.lives = lives
+
 
         self.pathPlayer = pathPlayer
 
@@ -33,7 +37,7 @@ class Player (pygame.sprite.Sprite):
 
         # ostavljanje tragova
         if self.rect.y % 50 == 0 & self.rect.x % 50 == 0:
-            if self.gameMap[self.rect.y // 50][self.rect.x // 50] == config.StaticEl(1):
+            if self.gameMap[self.rect.y // 50][self.rect.x // 50] == config.StaticEl.path:
                 # i == y, j == x koordinatama
                 self.gameMap[self.rect.y // 50][self.rect.x // 50] = config.StaticEl(self.pathPlayer)
 

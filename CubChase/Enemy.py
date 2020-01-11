@@ -1,7 +1,7 @@
 import pygame
 import random
 import GameConfig as config
-from GameStaticObject import Orientation
+from GameStaticObject import *
 import time
 pygame.init()
 
@@ -61,9 +61,7 @@ class Enemy (pygame.sprite.Sprite):
                     self.decisionX = 0
                     self.decisionY = 0
 
-
     def moveEnemy(self, sprite_list):     #sprite list je lista objekata (zidovi, igraci i ostalo)
-
         if not self.spotEnemy(sprite_list):
             self.makeDecision()
 
@@ -86,36 +84,50 @@ class Enemy (pygame.sprite.Sprite):
                     self.rect.top = temp.rect.bottom
 
     def spotEnemy(self, sprite_list):
-
-
-
         if self.rect.x % 50 == 0 and self.player.rect.x % 50 == 0:
             # i == y, j == x koordinatama
             enemyX = self.rect.x // 50
-            enemyY = (self.rect.y - self.rect.y % 50) // 50
             playerX = self.player.rect.x // 50
+            enemyY = (self.rect.y - self.rect.y % 50) // 50
             playerY = (self.player.rect.y - self.player.rect.y % 50) // 50
 
             if enemyX == playerX:
-                self.decisionX = 0
+
                 if enemyY > playerY:
+                    #proveri da li na toj liniji ima prepreka, ako ima ne moze ga videti -> return False, odnosno pozvace se makeDecision
+                    for i in range(playerY, enemyY):
+                        if config.gameMap[i][enemyX] == StaticEl.wall:
+                            return False
                     self.decisionY = -config.speed
                 else:
+                    # proveri da li na toj liniji ima prepreka, ako ima ne moze ga videti -> return False, odnosno pozvace se makeDecision
+                    for i in range (enemyY, playerY):
+                        if config.gameMap[i][enemyX] == StaticEl.wall:
+                            return False
                     self.decisionY = config.speed
+                self.decisionX = 0
                 return True
 
         elif self.rect.y % 50 == 0 and self.player.rect.y % 50 == 0:
-            enemyX = (self.rect.x - self.rect.x % 50) // 50
             enemyY = self.rect.y // 50
-            playerX = (self.player.rect.x - self.player.rect.x % 50) // 50
             playerY = self.player.rect.y // 50
+            enemyX = (self.rect.x - self.rect.x % 50) // 50
+            playerX = (self.player.rect.x - self.player.rect.x % 50) // 50
 
             if enemyY == playerY:
-                self.decisionY = 0
                 if enemyX > playerX:
+                    # proveri da li na toj liniji ima prepreka, ako ima ne moze ga videti -> return False, odnosno pozvace se makeDecision
+                    for i in range (playerX, enemyX):
+                        if config.gameMap[enemyY][i] == StaticEl.wall:
+                            return False
                     self.decisionX = -config.speed
                 else:
+                    # proveri da li na toj liniji ima prepreka, ako ima ne moze ga videti -> return False, odnosno pozvace se makeDecision
+                    for i in range (enemyX, playerX):
+                        if config.gameMap[enemyY][i] == StaticEl.wall:
+                            return False
                     self.decisionX = config.speed
+                self.decisionY = 0
                 return True
 
         return False

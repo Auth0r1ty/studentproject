@@ -17,9 +17,9 @@ class Play():
         self.sprite_list = pygame.sprite.Group()
         config.map_init (self.sprite_list)
 
+        self.carryOn = True
         self.player1 = Player (config.simba, 5, 50, 50, 400, 400, self.gameMap)
         self.sprite_list.add (self.player1)
-        self.carryOn1 = True
 
         self.enemy1 = Enemy(config.nala, 50, 50, 300, 50, self.gameMap, config.gameTerrain, self.sprite_list)
         self.sprite_list.add(self.enemy1)
@@ -27,18 +27,18 @@ class Play():
         if brojIgraca == 2:
             self.player2 = Player (config.nala, 6, 50, 50, 500, 400, self.gameMap)
             self.sprite_list.add (self.player2)
-            self.carryOn2 = True
-
+            self.enemy2 = Enemy (config.nala, 50, 50, 500, 50, self.gameMap, config.gameTerrain, self.sprite_list)
+            self.sprite_list.add (self.enemy2)
 
     # region One player
-    def one_player(self):
-        while self.carryOn1:
+    def one_player(self, queue):
+        while self.carryOn:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    self.carryOn1 = False
+                    self.carryOn = False
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_x:
-                        self.carryOn1 = False
+                        self.carryOn = False
 
             keys = pygame.key.get_pressed()
             if keys[pygame.K_LEFT]:
@@ -51,9 +51,7 @@ class Play():
                 self.player1.movePlayer(0, config.speed, self.sprite_list)
 
             #enemy movement
-
             self.enemy1.moveEnemy(self.sprite_list)
-
 
             # iscrtavanje mape
             for i in range(0, 12):
@@ -77,18 +75,18 @@ class Play():
             pygame.display.flip()
             self.clock.tick(config.fps)
 
-        return
+        queue.put(self.gameMap)
     # endregion
 
     # region Two players
     def two_players_firstPlayer(self):
-        while self.carryOn1:
+        while self.carryOn:
             for event in pygame.event.get ():
                 if event.type == pygame.QUIT:
-                    self.carryOn1 = False
+                    self.carryOn = False
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_x:
-                        self.carryOn1 = False
+                        self.carryOn = False
 
             keys = pygame.key.get_pressed ()
             if keys[pygame.K_LEFT]:
@@ -108,6 +106,10 @@ class Play():
                 self.player2.movePlayer (0, -config.speed, self.sprite_list)
             if keys[pygame.K_s]:
                 self.player2.movePlayer (0, config.speed, self.sprite_list)
+
+            self.enemy1.moveEnemy(self.sprite_list)
+            self.enemy2.moveEnemy(self.sprite_list)
+
 
             # iscrtavanje mape
             for i in range (0, 12):
@@ -132,13 +134,13 @@ class Play():
             self.clock.tick (config.fps)
 
     def two_players_secondPlayer(self):
-        while self.carryOn2:
+        while self.carryOn:
             for event in pygame.event.get ():
                 if event.type == pygame.QUIT:
-                    self.carryOn2 = False
+                    self.carryOn = False
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_x:
-                        self.carryOn2 = False
+                        self.carryOn = False
 
             keys = pygame.key.get_pressed ()
             if keys[pygame.K_a]:
