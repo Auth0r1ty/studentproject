@@ -9,5 +9,5 @@ promena mape => nece se sastojati od enum-a nego od objekata, znaci treba naprav
 1.fieldType:enum (onaj postojeci)     //kog je tipa polje -> zid, put, stope, itd...
 2.isCrossroad:bool                    //da li je u pitanju raskrsnica - tada se poziva decision make od enemy
 3.img:pygame.Surface                  //slicica koja ce se iscrtati na konkretnom polju
-4.canMove:bool                        //da li igraci ukljucujuci i enemy-a mogu da se krecu preko konkretnog polja
+
 

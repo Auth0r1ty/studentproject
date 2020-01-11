@@ -21,7 +21,7 @@ class Play():
         self.sprite_list.add (self.player1)
         self.carryOn1 = True
 
-        self.enemy1 = Enemy(config.nala, 50, 50, 300, 50, self.gameMap)
+        self.enemy1 = Enemy(config.nala, 50, 50, 300, 50, self.gameMap, config.gameTerrain, self.sprite_list)
         self.sprite_list.add(self.enemy1)
 
         if brojIgraca == 2:

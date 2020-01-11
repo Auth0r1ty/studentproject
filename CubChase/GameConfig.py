@@ -1,8 +1,7 @@
-from enum import Enum
+
 import pygame
 import os
-import Field
-from GameStaticObject import GameStaticObject
+from GameStaticObject import *
 from Player import Player
 
 
@@ -39,21 +38,7 @@ files_path = app_path + 'img/'
 # ########################################   ENUMS   ################################################
 
 
-class FieldType(Enum):
-    path = 1
-    wall = 2
-    enter = 3
-    trap = 4
-    pathPlayer1 = 5   #
-    pathPlayer2 = 6
 
-class StaticEl(Enum):
-    path = 1
-    wall = 2
-    enter = 3
-    trap = 4
-    pathPlayer1 = 5   #
-    pathPlayer2 = 6
 
 
 # ######################################   CONSTANTS   ##############################################
@@ -104,28 +89,50 @@ gameMap = [
     ]
 
 
-# ######################################   INITMAP   ##############################################
 
+# ######################################   INITMAP   ##############################################
+gameTerrain = [[[] for j in range(16)]for i in range(12)]
 
 def map_init(sprite_list):
     for i in range(0, 12):
         for j in range(0, 16):
             if gameMap[i][j] == StaticEl.wall:
-                obj = GameStaticObject(wall, 50, 50, j * 50, i * 50)
+                obj = GameStaticObject(StaticEl.wall, wall, 50, 50, j * 50, i * 50, False)
                 sprite_list.add(obj)
+                gameTerrain[i][j] = obj
+            elif gameMap[i][j] == StaticEl.path:
+                obj = GameStaticObject(StaticEl.path, path, 50, 50, j * 50, i * 50, True)
+
+                if i-1 > -1 and gameMap[i-1][j] == StaticEl.path:
+                    obj.insertOrientation(Orientation.up)
+                if i+1 < 12 and gameMap[i+1][j] == StaticEl.path:
+                    obj.insertOrientation(Orientation.down)
+                if j-1 > -1 and gameMap[i][j-1] == StaticEl.path:
+                    obj.insertOrientation(Orientation.left)
+                if j+1 < 16 and gameMap[i][j+1] == StaticEl.path:
+                    obj.insertOrientation(Orientation.right)
+
+                obj.crossroadCheck()
+                gameTerrain[i][j] = obj
+
+
+
+
+
+    # popravka da igraci ne izlaze van mape
     i = -1
     for j in range(0, 16):
-        obj = GameStaticObject(wall, 50, 50, j * 50, i * 50)
+        obj = GameStaticObject(StaticEl.wall, wall, 50, 50, j * 50, i * 50)
         sprite_list.add(obj)
     i = 12
     for j in range(0, 16):
-        obj = GameStaticObject(wall, 50, 50, j * 50, i * 50)
+        obj = GameStaticObject(StaticEl.wall, wall, 50, 50, j * 50, i * 50)
         sprite_list.add(obj)
     j = -1
     for i in range(0, 12):
-        obj = GameStaticObject(wall, 50, 50, j * 50, i * 50)
+        obj = GameStaticObject(StaticEl.wall, wall, 50, 50, j * 50, i * 50)
         sprite_list.add(obj)
     j = 16
     for i in range(0, 12):
-        obj = GameStaticObject(wall, 50, 50, j * 50, i * 50)
+        obj = GameStaticObject(StaticEl.wall, wall, 50, 50, j * 50, i * 50)
         sprite_list.add(obj)

@@ -86,7 +86,7 @@ class Menu():
                 self.options[self.active_option].highlight()
             self.screen.blit(option.label, option.position)
 
-
+# 1 se poziva
 class StartMenu():
 
     def __init__(self):
@@ -153,8 +153,6 @@ class StartMenu():
                         else:
                             option.function[0](option.function[1])
 
-    def run_game(self):
-        self.start_menu()
 
     def one_player(self):
         play = Play(1, self.screen, self.clock, deepcopy(gameMap))
