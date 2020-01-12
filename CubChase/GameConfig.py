@@ -91,7 +91,7 @@ gameMap = [
 
 
 # ######################################   INITMAP   ##############################################
-gameTerrain = [[[] for j in range(16)]for i in range(12)]
+gameTerrain = [[GameStaticObject(StaticEl.none, path, 0, 0, 0, 0) for j in range(16)]for i in range(12)]
 
 def map_init(sprite_list):
     for i in range(0, 12):
@@ -115,6 +115,11 @@ def map_init(sprite_list):
                 obj.crossroadCheck()
                 gameTerrain[i][j] = obj
 
+            elif gameMap[i][j] == StaticEl.enter:
+                obj = GameStaticObject(StaticEl.enter, enter, 50, 50, j * 50, i * 50, True)
+                gameTerrain[i][j] = obj
+
+
     # popravka da igraci ne izlaze van mape
     i = -1
     for j in range(0, 16):
@@ -130,5 +135,9 @@ def map_init(sprite_list):
         sprite_list.add(obj)
     j = 16
     for i in range(0, 12):
-        obj = GameStaticObject(StaticEl.wall, wall, 50, 50, j * 50, i * 50)
+        if i == 11:
+            obj = GameStaticObject(StaticEl.exit, wall, 50, 50, j * 50, i * 50)
+        else:
+            obj = GameStaticObject(StaticEl.wall, wall, 50, 50, j * 50, i * 50)
+
         sprite_list.add(obj)

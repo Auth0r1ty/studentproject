@@ -6,10 +6,10 @@ import multiprocessing as mp
 
 class Play():
 
-    def __init__(self, brojIgraca, screen, clock, gameMap):
+    def __init__(self, brojIgraca, screen, clock, gameTerrain):
         self.screen = screen
         self.clock = clock
-        self.gameMap = gameMap
+        self.gameTerrain = gameTerrain
 
         pygame.mouse.set_visible(False)
         pygame.mixer.music.stop()
@@ -18,20 +18,20 @@ class Play():
         config.map_init (self.sprite_list)
 
         self.carryOn = True
-        self.player1 = Player (config.simba, 5, 50, 50, 400, 400, self.gameMap)
+        self.player1 = Player (config.simba, 5, 50, 50, 400, 400, self.gameTerrain)
         self.sprite_list.add (self.player1)
 
-        self.enemy1 = Enemy(config.nala, 50, 50, 300, 50, self.gameMap, config.gameTerrain, self.sprite_list)
+        self.enemy1 = Enemy(config.nala, 50, 50, 300, 50, self.gameTerrain, self.sprite_list)
         self.sprite_list.add(self.enemy1)
 
         if brojIgraca == 2:
-            self.player2 = Player (config.nala, 6, 50, 50, 500, 400, self.gameMap)
+            self.player2 = Player (config.nala, 6, 50, 50, 500, 400, self.gameTerrain)
             self.sprite_list.add (self.player2)
-            self.enemy2 = Enemy (config.nala, 50, 50, 500, 50, self.gameMap, config.gameTerrain, self.sprite_list)
+            self.enemy2 = Enemy (config.nala, 50, 50, 500, 50, self.gameTerrain, self.sprite_list)
             self.sprite_list.add (self.enemy2)
 
     # region One player
-    def one_player(self, queue):
+    def one_player(self):
         while self.carryOn:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -53,19 +53,27 @@ class Play():
             #enemy movement
             self.enemy1.moveEnemy(self.sprite_list)
 
+            emptyPathCounter = 0
             # iscrtavanje mape
             for i in range(0, 12):
                 for j in range(0, 16):
-                    if self.gameMap[i][j] == config.StaticEl.path:
+                    if (self.gameTerrain[i][j]).fieldType == config.StaticEl.path:
                         self.screen.blit(config.path, (j * 50, i * 50))
-                    elif self.gameMap[i][j] == config.StaticEl.wall:
+                        emptyPathCounter += 1
+                    elif (self.gameTerrain[i][j]).fieldType == config.StaticEl.wall:
                         self.screen.blit(config.wall, (j * 50, i * 50))
-                    elif self.gameMap[i][j] == config.StaticEl.enter:
+                    elif (self.gameTerrain[i][j]).fieldType == config.StaticEl.enter:
                         self.screen.blit(config.enter, (j * 50, i * 50))
-                    elif self.gameMap[i][j] == config.StaticEl.pathPlayer1:
-                        self.screen.blit(config.pathPlayer1, (j * 50, i * 50))
-                    elif self.gameMap[i][j] == config.StaticEl.pathPlayer2:
-                        self.screen.blit (config.pathPlayer2, (j * 50, i * 50))
+                    elif (self.gameTerrain[i][j]).fieldType == config.StaticEl.pathPlayer1:
+                        self.screen.blit((self.gameTerrain[i][j]).image, (j * 50, i * 50))
+
+            if emptyPathCounter == 4:
+                for temp in self.sprite_list:
+                    if temp.__class__.__name__ == "GameStaticObject" and temp.fieldType == config.StaticEl.exit:
+                        self.sprite_list.remove(temp)
+
+            if self.player1.rect.x > 799:
+                self.carryOn = False
 
             # iscrtavanje svih sprit-ova (igraci, zid)
             self.sprite_list.update ()
@@ -75,7 +83,7 @@ class Play():
             pygame.display.flip()
             self.clock.tick(config.fps)
 
-        queue.put(self.gameMap)
+        #queue.put(self.gameTerrain)
     # endregion
 
     # region Two players
@@ -110,20 +118,29 @@ class Play():
             self.enemy1.moveEnemy(self.sprite_list)
             self.enemy2.moveEnemy(self.sprite_list)
 
-
+            emptyPathCounter = 0
             # iscrtavanje mape
             for i in range (0, 12):
                 for j in range (0, 16):
-                    if self.gameMap[i][j] == config.StaticEl.path:
+                    if (self.gameTerrain[i][j]).fieldType == config.StaticEl.path:
                         self.screen.blit (config.path, (j * 50, i * 50))
-                    elif self.gameMap[i][j] == config.StaticEl.wall:
+                        emptyPathCounter += 1
+                    elif (self.gameTerrain[i][j]).fieldType == config.StaticEl.wall:
                         self.screen.blit (config.wall, (j * 50, i * 50))
-                    elif self.gameMap[i][j] == config.StaticEl.enter:
+                    elif (self.gameTerrain[i][j]).fieldType == config.StaticEl.enter:
                         self.screen.blit (config.enter, (j * 50, i * 50))
-                    elif self.gameMap[i][j] == config.StaticEl.pathPlayer1:
-                        self.screen.blit (config.pathPlayer1, (j * 50, i * 50))
-                    elif self.gameMap[i][j] == config.StaticEl.pathPlayer2:
-                        self.screen.blit (config.pathPlayer2, (j * 50, i * 50))
+                    elif (self.gameTerrain[i][j]).fieldType == config.StaticEl.pathPlayer1:
+                        self.screen.blit ((self.gameTerrain[i][j]).image, (j * 50, i * 50))
+                    elif (self.gameTerrain[i][j]).fieldType == config.StaticEl.pathPlayer2:
+                        self.screen.blit ((self.gameTerrain[i][j]).image, (j * 50, i * 50))
+
+            if emptyPathCounter == 4:
+                for temp in self.sprite_list:
+                    if temp.__class__.__name__ == "GameStaticObject" and temp.fieldType == config.StaticEl.exit:
+                        self.sprite_list.remove(temp)
+
+            if self.player1.rect.x > 799 or self.player2.rect.x > 799:
+                self.carryOn = False
 
             # iscrtavanje svih sprit-ova (igraci, zid)
             self.sprite_list.update ()
@@ -155,15 +172,15 @@ class Play():
             # iscrtavanje mape
             for i in range (0, 12):
                 for j in range (0, 16):
-                    if self.gameMap[i][j] == config.StaticEl.path:
+                    if (self.gameTerrain[i][j]).fieldType == config.StaticEl.path:
                         self.screen.blit (config.path, (j * 50, i * 50))
-                    elif self.gameMap[i][j] == config.StaticEl.wall:
+                    elif (self.gameTerrain[i][j]).fieldType == config.StaticEl.wall:
                         self.screen.blit (config.wall, (j * 50, i * 50))
-                    elif self.gameMap[i][j] == config.StaticEl.enter:
+                    elif (self.gameTerrain[i][j]).fieldType == config.StaticEl.enter:
                         self.screen.blit (config.enter, (j * 50, i * 50))
-                    elif self.gameMap[i][j] == config.StaticEl.pathPlayer1:
+                    elif (self.gameTerrain[i][j]).fieldType == config.StaticEl.pathPlayer1:
                         self.screen.blit (config.pathPlayer1, (j * 50, i * 50))
-                    elif self.gameMap[i][j] == config.StaticEl.pathPlayer2:
+                    elif (self.gameTerrain[i][j]).fieldType == config.StaticEl.pathPlayer2:
                         self.screen.blit (config.pathPlayer2, (j * 50, i * 50))
 
             # iscrtavanje svih sprit-ova (igraci, zid)

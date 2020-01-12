@@ -73,25 +73,28 @@ class StartMenu():
 
     def one_player(self):
         active = False
-        play = Play(1, self.screen, self.clock, deepcopy(gameMap))
+        play = Play(1, self.screen, self.clock, gameTerrain)
         queue = mp.Queue()
-        process = mp.Process (target=play.one_player(queue))
+        process = mp.Process (target=play.one_player())
         process.start ()
-        gameMapReturned = queue.get()
+        process.join()
+        #gameMapReturned = queue.get()
         pygame.mouse.set_visible (True)
         pygame.mixer.music.play (-1)
 
         score = 0
         for i in range(0, 12):
             for j in range (0, 16):
-                if gameMapReturned[i][j] == StaticEl.pathPlayer1:
+                if (gameTerrain[i][j]).fieldType == StaticEl.pathPlayer1:
                     score += 100
-
-        """player_score = pygame.transform.scale (pygame.image.load (files_path + "1player_score.jpg"), (width,
+        print(score)
+        """
+        player_score = pygame.transform.scale (pygame.image.load (files_path + "1player_score.jpg"), (width,
                                                                                                        height))
         self.screen.blit(player_score, (0, 0))
         pygame.display.update ()
-        pygame.time.delay (5000)"""
+        pygame.time.delay (5000)
+        
         font_obj = pygame.font.Font ('freesansbold.ttf', 32)
         text_surface_obj = font_obj.render ('Hello World!', True, (0, 255, 0), (0, 0, 180))
         text_rect_obj = text_surface_obj.get_rect ()
@@ -99,12 +102,13 @@ class StartMenu():
         self.screen.blit (text_surface_obj, text_rect_obj)
         pygame.display.update ()
         pygame.time.delay (5000)
+        """
         self.start_menu()
 
         return
 
     def two_players_offline(self):
-        play = Play(2, self.screen, self.clock, deepcopy(gameMap))
+        play = Play(2, self.screen, self.clock, gameTerrain)
         process = mp.Process (target=play.two_players_firstPlayer())
         #process1 = mp.Process (target=play.two_players_secondPlayer())
 
@@ -115,6 +119,16 @@ class StartMenu():
 
         pygame.mouse.set_visible (True)
         pygame.mixer.music.play (-1)
+
+        score = 0
+        for i in range(0, 12):
+            for j in range(0, 16):
+                if (gameTerrain[i][j]).fieldType == StaticEl.pathPlayer1:
+                    score += 100
+        print(score)
+
+        self.start_menu()
+
         return
 
     def two_players_online(self):

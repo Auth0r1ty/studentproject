@@ -10,6 +10,7 @@ class StaticEl(Enum):
     pathPlayer1 = 5   #
     pathPlayer2 = 6
     none = 7
+    exit = 8
 
 
 class Orientation(Enum):

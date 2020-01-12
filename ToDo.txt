@@ -11,10 +11,6 @@ promena mape => nece se sastojati od enum-a nego od objekata, znaci treba naprav
 3.img:pygame.Surface                  //slicica koja ce se iscrtati na konkretnom polju
 
 
-//zadatak 2
-
-smer sapica
-
 //zadatak 3
 
 animacije, prikaz rezultata, prikaz zivota za vreme igre
@@ -23,7 +19,4 @@ animacije, prikaz rezultata, prikaz zivota za vreme igre
 
 gubitak zivota, colliders
 
-//zadatak 5
-
-otvaranje kapije kada se prekriju sve staze
 

@@ -7,7 +7,7 @@ class Player (pygame.sprite.Sprite):
     pathPlayer = None
 
     # u slucaju vise slika, proslediti sliku kao argument konstuktora
-    def __init__(self, image, pathPlayer, width, height, x, y, gameMap, lives: int = 3):
+    def __init__(self, image, pathPlayer, width, height, x, y, gameTerrain, lives: int = 3):
         # poziv konstruktora od roditelja
         super ().__init__()
 
@@ -31,15 +31,25 @@ class Player (pygame.sprite.Sprite):
         self.rect.x = x
         self.rect.y = y
 
-        self.gameMap = gameMap
+        self.gameTerrain = gameTerrain
 
     def movePlayer(self, x, y, sprite_list):
 
         # ostavljanje tragova
         if self.rect.y % 50 == 0 and self.rect.x % 50 == 0:
-            if self.gameMap[self.rect.y // 50][self.rect.x // 50] == config.StaticEl.path:
+            currTerrain = self.gameTerrain[self.rect.y // 50][self.rect.x // 50]
+            if currTerrain.fieldType == config.StaticEl.path or currTerrain.fieldType == config.StaticEl(self.pathPlayer):
                 # i == y, j == x koordinatama
-                self.gameMap[self.rect.y // 50][self.rect.x // 50] = config.StaticEl(self.pathPlayer)
+                currTerrain.fieldType = config.StaticEl(self.pathPlayer)
+                currTerrain.image = config.pathPlayer1 if self.pathPlayer == 5 else config.pathPlayer2
+                if x > 0:
+                    currTerrain.image = pygame.transform.rotate(currTerrain.image, 270)
+                elif x < 0:
+                    currTerrain.image = pygame.transform.rotate(currTerrain.image, 90)
+                elif y < 0:
+                    pass
+                elif y > 0:
+                    currTerrain.image = pygame.transform.rotate(currTerrain.image, 180)
 
         rectXpomocna = self.rect.x
         rectYpomocna = self.rect.y

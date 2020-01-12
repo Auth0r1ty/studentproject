@@ -7,7 +7,7 @@ pygame.init()
 
 class Enemy (pygame.sprite.Sprite):
     # u slucaju vise slika, proslediti sliku kao argument konstuktora
-    def __init__(self, image, width, height, x, y, gameMap, gameTerrain, sprite_list):
+    def __init__(self, image, width, height, x, y, gameTerrain, sprite_list):
         # poziv konstruktora od roditelja
         super ().__init__()
 
@@ -22,7 +22,7 @@ class Enemy (pygame.sprite.Sprite):
         self.rect.x = x
         self.rect.y = y
 
-        self.gameMap = gameMap
+        self.gameTerrain = gameTerrain
 
         self.decisionX=config.speed
         self.decisionY=0
@@ -96,13 +96,13 @@ class Enemy (pygame.sprite.Sprite):
                 if enemyY > playerY:
                     #proveri da li na toj liniji ima prepreka, ako ima ne moze ga videti -> return False, odnosno pozvace se makeDecision
                     for i in range(playerY, enemyY):
-                        if config.gameMap[i][enemyX] == StaticEl.wall:
+                        if (self.gameTerrain[i][enemyX]).fieldType == StaticEl.wall:
                             return False
                     self.decisionY = -config.speed
                 else:
                     # proveri da li na toj liniji ima prepreka, ako ima ne moze ga videti -> return False, odnosno pozvace se makeDecision
                     for i in range (enemyY, playerY):
-                        if config.gameMap[i][enemyX] == StaticEl.wall:
+                        if (self.gameTerrain[i][enemyX]).fieldType == StaticEl.wall:
                             return False
                     self.decisionY = config.speed
                 self.decisionX = 0
@@ -118,13 +118,13 @@ class Enemy (pygame.sprite.Sprite):
                 if enemyX > playerX:
                     # proveri da li na toj liniji ima prepreka, ako ima ne moze ga videti -> return False, odnosno pozvace se makeDecision
                     for i in range (playerX, enemyX):
-                        if config.gameMap[enemyY][i] == StaticEl.wall:
+                        if (self.gameTerrain[enemyY][i]).fieldType == StaticEl.wall:
                             return False
                     self.decisionX = -config.speed
                 else:
                     # proveri da li na toj liniji ima prepreka, ako ima ne moze ga videti -> return False, odnosno pozvace se makeDecision
                     for i in range (enemyX, playerX):
-                        if config.gameMap[enemyY][i] == StaticEl.wall:
+                        if (self.gameTerrain[enemyY][i]).fieldType == StaticEl.wall:
                             return False
                     self.decisionX = config.speed
                 self.decisionY = 0
