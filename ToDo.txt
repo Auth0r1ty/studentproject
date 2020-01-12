@@ -13,7 +13,7 @@ promena mape => nece se sastojati od enum-a nego od objekata, znaci treba naprav
 
 //zadatak 2
 
-smer sapica, iscrtavanje sapice(kod skretanja levo)
+smer sapica
 
 //zadatak 3
 

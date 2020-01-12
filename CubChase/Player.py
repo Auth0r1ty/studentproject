@@ -36,7 +36,7 @@ class Player (pygame.sprite.Sprite):
     def movePlayer(self, x, y, sprite_list):
 
         # ostavljanje tragova
-        if self.rect.y % 50 == 0 & self.rect.x % 50 == 0:
+        if self.rect.y % 50 == 0 and self.rect.x % 50 == 0:
             if self.gameMap[self.rect.y // 50][self.rect.x // 50] == config.StaticEl.path:
                 # i == y, j == x koordinatama
                 self.gameMap[self.rect.y // 50][self.rect.x // 50] = config.StaticEl(self.pathPlayer)
