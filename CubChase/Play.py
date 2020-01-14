@@ -1,77 +1,197 @@
 import pygame
 import GameConfig as config
-import Menu as menu
-import sys
-
+from Player import Player
+from Enemy import Enemy
+import multiprocessing as mp
 
 class Play():
 
-    def __init__(self):
-        self.polje = True #ubaceno cisto nesto da ima
+    def __init__(self, brojIgraca, screen, clock, gameTerrain):
+        self.screen = screen
+        self.clock = clock
+        self.gameTerrain = gameTerrain
 
-    def one_player(self):
-        menu.active = False
         pygame.mouse.set_visible(False)
         pygame.mixer.music.stop()
-        carryOn = True
-        size = (800, 600)
-        screen = pygame.display.set_mode(size)
-        pygame.display.set_caption("CubChaseTest")
-        clock = pygame.time.Clock()
-        WHITE = (255, 255, 255)
-        config.map_init()
 
-        # -------- Main Program Loop -----------
-        while carryOn:
-            # --- Main event loop
-            for event in pygame.event.get():  # User did something
-                if event.type == pygame.QUIT:  # If user clicked close
-                    carryOn = False  # Flag that we are done so we exit this loop
-                # --- Game logic should go here
+        self.sprite_list = pygame.sprite.Group()
+        config.map_init (self.sprite_list)
 
-                # --- Drawing code should go here
-                # First, clear the screen to white.
+        self.carryOn = True
+        self.player1 = Player (config.simba, 5, 50, 50, 400, 400, self.gameTerrain)
+        self.sprite_list.add (self.player1)
+
+        self.enemy1 = Enemy(config.nala, 50, 50, 300, 50, self.gameTerrain, self.sprite_list)
+        self.sprite_list.add(self.enemy1)
+
+        if brojIgraca == 2:
+            self.player2 = Player (config.nala, 6, 50, 50, 500, 400, self.gameTerrain)
+            self.sprite_list.add (self.player2)
+            self.enemy2 = Enemy (config.nala, 50, 50, 500, 50, self.gameTerrain, self.sprite_list)
+            self.sprite_list.add (self.enemy2)
+
+    # region One player
+    def one_player(self):
+        while self.carryOn:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.carryOn = False
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_x:
+                        self.carryOn = False
+
             keys = pygame.key.get_pressed()
             if keys[pygame.K_LEFT]:
-                config.player.movePlayer(-config.speed, 0, config.sprite_list)
-                # player.moveLeft (2, timon)
+                self.player1.movePlayer(-config.speed, 0, self.sprite_list)
             if keys[pygame.K_RIGHT]:
-                config.player.movePlayer(config.speed, 0, config.sprite_list)
-                # player.moveRight (2, timon)
+                self.player1.movePlayer(config.speed, 0, self.sprite_list)
             if keys[pygame.K_UP]:
-                config.player.movePlayer(0, -config.speed, config.sprite_list)
-                # player.moveUp (2, timon)
+                self.player1.movePlayer(0, -config.speed, self.sprite_list)
             if keys[pygame.K_DOWN]:
-                config.player.movePlayer(0, config.speed, config.sprite_list)
-                # player.moveDown (2, timon)
-            config.sprite_list.update()
-            screen.fill(WHITE)
+                self.player1.movePlayer(0, config.speed, self.sprite_list)
+
+            #enemy movement
+            self.enemy1.moveEnemy(self.sprite_list)
+
+            emptyPathCounter = 0
             # iscrtavanje mape
             for i in range(0, 12):
                 for j in range(0, 16):
-                    if config.gameMap[i][j] == config.StaticEl.path:
-                        screen.blit(config.path, (j * 50, i * 50))
-                    elif config.gameMap[i][j] == config.StaticEl.wall:
-                        screen.blit(config.wall, (j * 50, i * 50))
-                    elif config.gameMap[i][j] == config.StaticEl.enter:  # pathPlayer1
-                        screen.blit(config.enter, (j * 50, i * 50))
-                    elif config.gameMap[i][j] == config.StaticEl.pathPlayer1:
-                        screen.blit(config.pathPlayer1, (j * 50, i * 50))
-            # The you can draw different shapes and lines or add text to your background stage.
-            config.sprite_list.draw(screen)
-            # --- Go ahead and update the screen with what we've drawn.
+                    if (self.gameTerrain[i][j]).fieldType == config.StaticEl.path:
+                        self.screen.blit(config.path, (j * 50, i * 50))
+                        emptyPathCounter += 1
+                    elif (self.gameTerrain[i][j]).fieldType == config.StaticEl.wall:
+                        self.screen.blit(config.wall, (j * 50, i * 50))
+                    elif (self.gameTerrain[i][j]).fieldType == config.StaticEl.enter:
+                        self.screen.blit(config.enter, (j * 50, i * 50))
+                    elif (self.gameTerrain[i][j]).fieldType == config.StaticEl.pathPlayer1:
+                        self.screen.blit((self.gameTerrain[i][j]).image, (j * 50, i * 50))
+
+            if emptyPathCounter == 4:
+                for temp in self.sprite_list:
+                    if temp.__class__.__name__ == "GameStaticObject" and temp.fieldType == config.StaticEl.exit:
+                        self.sprite_list.remove(temp)
+
+            if self.player1.rect.x > 799:
+                self.carryOn = False
+
+            # iscrtavanje svih sprit-ova (igraci, zid)
+            self.sprite_list.update ()
+            self.sprite_list.draw(self.screen)
+
+            # iscrtavanje celog ekrana
             pygame.display.flip()
-            # --- Limit to 60 frames per second
-            clock.tick(config.fps)
+            self.clock.tick(config.fps)
 
-        # Once we have exited the main program loop we can stop the game engine:
+        #queue.put(self.gameTerrain)
+    # endregion
 
+    # region Two players
+    def two_players_firstPlayer(self):
+        while self.carryOn:
+            for event in pygame.event.get ():
+                if event.type == pygame.QUIT:
+                    self.carryOn = False
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_x:
+                        self.carryOn = False
 
-        pygame.quit()
-        sys.exit()
+            keys = pygame.key.get_pressed ()
+            if keys[pygame.K_LEFT]:
+                self.player1.movePlayer (-config.speed, 0, self.sprite_list)
+            if keys[pygame.K_RIGHT]:
+                self.player1.movePlayer (config.speed, 0, self.sprite_list)
+            if keys[pygame.K_UP]:
+                self.player1.movePlayer (0, -config.speed, self.sprite_list)
+            if keys[pygame.K_DOWN]:
+                self.player1.movePlayer (0, config.speed, self.sprite_list)
 
-    def two_players_offline(self):
-        print("aa")
+            if keys[pygame.K_a]:
+                self.player2.movePlayer (-config.speed, 0, self.sprite_list)
+            if keys[pygame.K_d]:
+                self.player2.movePlayer (config.speed, 0, self.sprite_list)
+            if keys[pygame.K_w]:
+                self.player2.movePlayer (0, -config.speed, self.sprite_list)
+            if keys[pygame.K_s]:
+                self.player2.movePlayer (0, config.speed, self.sprite_list)
+
+            self.enemy1.moveEnemy(self.sprite_list)
+            self.enemy2.moveEnemy(self.sprite_list)
+
+            emptyPathCounter = 0
+            # iscrtavanje mape
+            for i in range (0, 12):
+                for j in range (0, 16):
+                    if (self.gameTerrain[i][j]).fieldType == config.StaticEl.path:
+                        self.screen.blit (config.path, (j * 50, i * 50))
+                        emptyPathCounter += 1
+                    elif (self.gameTerrain[i][j]).fieldType == config.StaticEl.wall:
+                        self.screen.blit (config.wall, (j * 50, i * 50))
+                    elif (self.gameTerrain[i][j]).fieldType == config.StaticEl.enter:
+                        self.screen.blit (config.enter, (j * 50, i * 50))
+                    elif (self.gameTerrain[i][j]).fieldType == config.StaticEl.pathPlayer1:
+                        self.screen.blit ((self.gameTerrain[i][j]).image, (j * 50, i * 50))
+                    elif (self.gameTerrain[i][j]).fieldType == config.StaticEl.pathPlayer2:
+                        self.screen.blit ((self.gameTerrain[i][j]).image, (j * 50, i * 50))
+
+            if emptyPathCounter == 4:
+                for temp in self.sprite_list:
+                    if temp.__class__.__name__ == "GameStaticObject" and temp.fieldType == config.StaticEl.exit:
+                        self.sprite_list.remove(temp)
+
+            if self.player1.rect.x > 799 or self.player2.rect.x > 799:
+                self.carryOn = False
+
+            # iscrtavanje svih sprit-ova (igraci, zid)
+            self.sprite_list.update ()
+            self.sprite_list.draw (self.screen)
+
+            # iscrtavanje celog ekrana
+            pygame.display.flip ()
+            self.clock.tick (config.fps)
+
+    def two_players_secondPlayer(self):
+        while self.carryOn:
+            for event in pygame.event.get ():
+                if event.type == pygame.QUIT:
+                    self.carryOn = False
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_x:
+                        self.carryOn = False
+
+            keys = pygame.key.get_pressed ()
+            if keys[pygame.K_a]:
+                self.player2.movePlayer (-config.speed, 0, self.sprite_list)
+            if keys[pygame.K_d]:
+                self.player2.movePlayer (config.speed, 0, self.sprite_list)
+            if keys[pygame.K_w]:
+                self.player2.movePlayer (0, -config.speed, self.sprite_list)
+            if keys[pygame.K_s]:
+                self.player2.movePlayer (0, config.speed, self.sprite_list)
+
+            # iscrtavanje mape
+            for i in range (0, 12):
+                for j in range (0, 16):
+                    if (self.gameTerrain[i][j]).fieldType == config.StaticEl.path:
+                        self.screen.blit (config.path, (j * 50, i * 50))
+                    elif (self.gameTerrain[i][j]).fieldType == config.StaticEl.wall:
+                        self.screen.blit (config.wall, (j * 50, i * 50))
+                    elif (self.gameTerrain[i][j]).fieldType == config.StaticEl.enter:
+                        self.screen.blit (config.enter, (j * 50, i * 50))
+                    elif (self.gameTerrain[i][j]).fieldType == config.StaticEl.pathPlayer1:
+                        self.screen.blit (config.pathPlayer1, (j * 50, i * 50))
+                    elif (self.gameTerrain[i][j]).fieldType == config.StaticEl.pathPlayer2:
+                        self.screen.blit (config.pathPlayer2, (j * 50, i * 50))
+
+            # iscrtavanje svih sprit-ova (igraci, zid)
+            self.sprite_list.update ()
+            self.sprite_list.draw (self.screen)
+
+            # iscrtavanje celog ekrana
+            pygame.display.flip ()
+            self.clock.tick (config.fps)
+
+    #endregion
 
     def two_players_online(self):
         print("aa")

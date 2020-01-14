@@ -2,4 +2,4 @@ from Menu import *
 
 if __name__ == '__main__':
     start_menu = StartMenu()
-    start_menu.run_game()
+    start_menu.start_menu()
