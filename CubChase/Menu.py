@@ -8,6 +8,7 @@ from copy import deepcopy
 active = None
 
 
+
 # 1 se poziva
 class StartMenu():
 
@@ -75,19 +76,15 @@ class StartMenu():
         active = False
         play = Play(1, self.screen, self.clock, gameTerrain)
         queue = mp.Queue()
-        process = mp.Process (target=play.one_player())
-        process.start ()
+        process = mp.Process(target=play.one_player())
+        process.start()
         process.join()
         #gameMapReturned = queue.get()
-        pygame.mouse.set_visible (True)
-        pygame.mixer.music.play (-1)
+        pygame.mouse.set_visible(True)
+        pygame.mixer.music.play(-1)
 
-        score = 0
-        for i in range(0, 12):
-            for j in range (0, 16):
-                if (gameTerrain[i][j]).fieldType == StaticEl.pathPlayer1:
-                    score += 100
-        print(score)
+
+
         """
         player_score = pygame.transform.scale (pygame.image.load (files_path + "1player_score.jpg"), (width,
                                                                                                        height))
@@ -109,23 +106,27 @@ class StartMenu():
 
     def two_players_offline(self):
         play = Play(2, self.screen, self.clock, gameTerrain)
-        process = mp.Process (target=play.two_players_firstPlayer())
+        process = mp.Process(target=play.two_players_firstPlayer())
         #process1 = mp.Process (target=play.two_players_secondPlayer())
 
         process.start()
         #process1.start()
-        process.join ()
+        process.join()
         #process1.join ()
 
-        pygame.mouse.set_visible (True)
-        pygame.mixer.music.play (-1)
+        pygame.mouse.set_visible(True)
+        pygame.mixer.music.play(-1)
 
-        score = 0
-        for i in range(0, 12):
-            for j in range(0, 16):
-                if (gameTerrain[i][j]).fieldType == StaticEl.pathPlayer1:
-                    score += 100
-        print(score)
+        #score = 0
+        #for i in range(0, 12):
+            #for j in range(0, 16):
+                #if (gameTerrain[i][j]).fieldType == StaticEl.pathPlayer1:
+
+
+                    # score += 100
+        # print(score)
+
+
 
         self.start_menu()
 
@@ -146,6 +147,26 @@ class StartMenu():
     def leave_game(self):
         pygame.quit()
         sys.exit()
+
+    ########################## ja dodao by DJOLE ################################
+    def get_score(self):
+        sum = 0
+        for i in range(0, 12):
+            for j in range(0, 16):
+                if (gameTerrain[i][j]).fieldType == StaticEl.pathPlayer1:
+                    sum += 1
+
+        return sum * 100
+
+    def get_score2(self):
+        sum = 0
+        for i in range(0, 12):
+            for j in range(0, 16):
+                if (gameTerrain[i][j]).fieldType == StaticEl.pathPlayer2:
+                    sum += 1
+
+        return sum * 100
+    ############################################################################
 
 
 class Menu():

@@ -18,8 +18,18 @@ path = pygame.transform.scale(path, (50, 50))
 # define player1, player2 image and their path
 simba = pygame.image.load("img/simba.png")
 simba = pygame.transform.scale(simba, (50, 50))
+
+#player2
 nala = pygame.image.load("img/nala.png")
 nala = pygame.transform.scale(nala, (50, 50))
+
+#enemy1
+pumba = pygame.image.load("img/Pumba.png")
+pumba = pygame.transform.scale(pumba, (50, 50))
+
+#enemy2
+timon = pygame.image.load("img/Timon.png")
+timon = pygame.transform.scale(timon, (50, 50))
 
 pathPlayer1 = pygame.image.load("img/sand_blue.png")
 pathPlayer1 = pygame.transform.scale(pathPlayer1, (50, 50))

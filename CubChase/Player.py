@@ -9,7 +9,7 @@ class Player (pygame.sprite.Sprite):
     # u slucaju vise slika, proslediti sliku kao argument konstuktora
     def __init__(self, image, pathPlayer, width, height, x, y, gameTerrain, lives: int = 3):
         # poziv konstruktora od roditelja
-        super ().__init__()
+        super().__init__()
 
         #broj zivota
         self.lives = lives
@@ -18,7 +18,7 @@ class Player (pygame.sprite.Sprite):
         self.pathPlayer = pathPlayer
 
         # visina i sirana slike
-        self.image = pygame.Surface ([width, height])
+        self.image = pygame.Surface([width, height])
         self.image = image
 
         # maska oko slike, koristi se za detektovanje kolizije sa drugim Sprite-ovima
@@ -64,7 +64,7 @@ class Player (pygame.sprite.Sprite):
         self.rect.y = rectYpomocna
 
         # kolizija sa zidom i drugim igracima
-        collision_list = pygame.sprite.spritecollide (self, sprite_list, False)
+        collision_list = pygame.sprite.spritecollide(self, sprite_list, False)
         for temp in collision_list:
             if temp != self:
                 if x > 0:       # igrac se pomera desno
