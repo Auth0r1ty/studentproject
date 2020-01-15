@@ -18,8 +18,17 @@ class Player (pygame.sprite.Sprite):
         self.pathPlayer = pathPlayer
 
         # visina i sirana slike
+        self.leftImage = pygame.Surface([width, height])
+        self.leftImage = image[0]
+        self.rightImage = pygame.Surface([width, height])
+        self.rightImage = image[1]
+        self.upImage = pygame.Surface([width, height])
+        self.upImage = image[2]
+        self.downImage = pygame.Surface([width, height])
+        self.downImage = image[3]
+
         self.image = pygame.Surface([width, height])
-        self.image = image
+        self.image = self.downImage
 
         # maska oko slike, koristi se za detektovanje kolizije sa drugim Sprite-ovima
         # self.mask = pygame.mask.from_surface (self.image)
@@ -43,12 +52,16 @@ class Player (pygame.sprite.Sprite):
                 currTerrain.fieldType = config.StaticEl(self.pathPlayer)
                 currTerrain.image = config.pathPlayer1 if self.pathPlayer == 5 else config.pathPlayer2
                 if x > 0:
+                    self.image=self.rightImage
                     currTerrain.image = pygame.transform.rotate(currTerrain.image, 270)
                 elif x < 0:
+                    self.image = self.leftImage
                     currTerrain.image = pygame.transform.rotate(currTerrain.image, 90)
                 elif y < 0:
+                    self.image=self.upImage
                     pass
                 elif y > 0:
+                    self.image = self.downImage
                     currTerrain.image = pygame.transform.rotate(currTerrain.image, 180)
 
         rectXpomocna = self.rect.x

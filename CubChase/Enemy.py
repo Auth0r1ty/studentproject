@@ -12,9 +12,18 @@ class Enemy (pygame.sprite.Sprite):
         # poziv konstruktora od roditelja
         super().__init__()
 
-        # visina i sirana slike
+        # visina i sirana slika (dodate su ostale slike)
+        self.leftImage = pygame.Surface([width, height])
+        self.leftImage = image[0]
+        self.rightImage = pygame.Surface([width, height])
+        self.rightImage = image[1]
+        self.upImage = pygame.Surface([width, height])
+        self.upImage = image[2]
+        self.downImage = pygame.Surface([width, height])
+        self.downImage = image[3]
+
         self.image = pygame.Surface([width, height])
-        self.image = image
+        self.image = self.downImage
 
         # napravi se pravougaonik cije su dimenzije jednake dimenziji slike
         self.rect = self.image.get_rect()
@@ -47,15 +56,19 @@ class Enemy (pygame.sprite.Sprite):
                     putanja = 0
 
                 if putanja == Orientation.up:
+                    self.image = self.upImage
                     self.decisionY = -config.speed
                     self.decisionX = 0
                 elif putanja == Orientation.down:
+                    self.image = self.downImage
                     self.decisionY = config.speed
                     self.decisionX = 0
                 elif putanja == Orientation.left:
+                    self.image = self.leftImage
                     self.decisionY = 0
                     self.decisionX = -config.speed
                 elif putanja == Orientation.right:
+                    self.image = self.rightImage
                     self.decisionY = 0
                     self.decisionX = config.speed
                 else:
@@ -99,12 +112,14 @@ class Enemy (pygame.sprite.Sprite):
                     for i in range(playerY, enemyY):
                         if (self.gameTerrain[i][enemyX]).fieldType == StaticEl.wall:
                             return False
+                    self.image=self.upImage
                     self.decisionY = -config.speed
                 else:
                     # proveri da li na toj liniji ima prepreka, ako ima ne moze ga videti -> return False, odnosno pozvace se makeDecision
                     for i in range(enemyY, playerY):
                         if (self.gameTerrain[i][enemyX]).fieldType == StaticEl.wall:
                             return False
+                    self.image = self.downImage
                     self.decisionY = config.speed
                 self.decisionX = 0
                 return True
@@ -121,12 +136,14 @@ class Enemy (pygame.sprite.Sprite):
                     for i in range(playerX, enemyX):
                         if (self.gameTerrain[enemyY][i]).fieldType == StaticEl.wall:
                             return False
+                    self.image=self.leftImage
                     self.decisionX = -config.speed
                 else:
                     # proveri da li na toj liniji ima prepreka, ako ima ne moze ga videti -> return False, odnosno pozvace se makeDecision
                     for i in range(enemyX, playerX):
                         if (self.gameTerrain[enemyY][i]).fieldType == StaticEl.wall:
                             return False
+                    self.image = self.rightImage
                     self.decisionX = config.speed
                 self.decisionY = 0
                 return True
