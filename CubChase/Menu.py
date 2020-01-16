@@ -16,7 +16,7 @@ class StartMenu():
         pygame.init()
         pygame.display.set_caption("Cub chase")
         music = pygame.mixer.music.load(files_path + "menu.mp3")
-        pygame.mixer.music.play(-1)
+        #pygame.mixer.music.play(-1)
         pygame.mixer.music.set_volume(0.5)
         self.font = pygame.font.SysFont("monospace", 30)
         self.clock = pygame.time.Clock()
@@ -75,13 +75,14 @@ class StartMenu():
     def one_player(self):
         active = False
         play = Play(1, self.screen, self.clock, gameTerrain)
+        play.one_player()
         queue = mp.Queue()
         process = mp.Process(target=play.one_player())
         process.start()
         process.join()
         #gameMapReturned = queue.get()
         pygame.mouse.set_visible(True)
-        pygame.mixer.music.play(-1)
+        #pygame.mixer.music.play(-1)
 
 
 

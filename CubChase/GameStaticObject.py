@@ -24,14 +24,10 @@ class GameStaticObject(pygame.sprite.Sprite):
     def __init__(self, fieldType: StaticEl, image, width, height, xx, yy, canMove: bool = False, isCrossroad: bool = False):
         super().__init__()
 
-        #nova polja
         self.fieldType = fieldType
         self.isCrossroad = isCrossroad
         self.orientations = []
         self.canMove = canMove
-
-        self.x = xx
-        self.y = yy
         self.width = width
         self.height = height
         # visina i sirana slike
@@ -61,17 +57,3 @@ class GameStaticObject(pygame.sprite.Sprite):
             elif self.orientations.__contains__(Orientation.left) and self.orientations.__contains__(Orientation.down):
                 self.isCrossroad = True
 
-    def get_x(self):
-        return self.x
-
-    def get_y(self):
-        return self.y
-
-    def get_width(self):
-        return self.width
-
-    def get_height(self):
-        return self.height
-
-    def get_image(self):
-        return self.image
