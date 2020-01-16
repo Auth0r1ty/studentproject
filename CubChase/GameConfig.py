@@ -45,11 +45,11 @@ enter = pygame.transform.scale(enter, (50, 50))
 app_path = os.path.dirname(__file__)+'/'
 files_path = app_path + 'img/'
 
-# ########################################   ENUMS   ################################################
+# define table for score
+table_for_score = pygame.image.load("img/Tabla.png")
 
-
-
-
+# define image for life
+life = pygame.image.load ("img/Heart.png")
 
 # ######################################   CONSTANTS   ##############################################
 

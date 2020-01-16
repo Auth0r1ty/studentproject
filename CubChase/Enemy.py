@@ -3,37 +3,30 @@ import random
 import GameConfig as config
 from GameStaticObject import *
 import time
+import  GameDynamicObject
 pygame.init()
 
 
-class Enemy (pygame.sprite.Sprite):
+class Enemy (GameDynamicObject.GameDynamicObject):
     # u slucaju vise slika, proslediti sliku kao argument konstuktora
-    def __init__(self, image, width, height, x, y, gameTerrain, sprite_list):
+    def __init__(self, image, x, y, gameTerrain, sprite_list, carryOn, screen):
         # poziv konstruktora od roditelja
-        super().__init__()
+        super().__init__(50, 50, x, y, image, gameTerrain, carryOn, sprite_list,screen)
 
-        # visina i sirana slike
-        self.image = pygame.Surface([width, height])
+        # py game width, height and image
+        self.image = pygame.Surface([50, 50])
         self.image = image
-
-        # napravi se pravougaonik cije su dimenzije jednake dimenziji slike
         self.rect = self.image.get_rect()
-
-        # pocetni polozaj igraca
+        # start position
         self.rect.x = x
         self.rect.y = y
-
-        self.gameTerrain = gameTerrain
-
         self.decisionX = config.speed
         self.decisionY = 0
 
         for temp in sprite_list:
-
             if temp.__class__.__name__ == "Player":
                 self.player = temp
                 break
-
 
     def makeDecision(self):
 
@@ -62,14 +55,14 @@ class Enemy (pygame.sprite.Sprite):
                     self.decisionX = 0
                     self.decisionY = 0
 
-    def moveEnemy(self, sprite_list):     #sprite list je lista objekata (zidovi, igraci i ostalo)
-        if not self.spotEnemy(sprite_list):
+    def moveEnemy(self):     #sprite list je lista objekata (zidovi, igraci i ostalo)
+        if not self.spotEnemy():
             self.makeDecision()
 
         self.rect.x += self.decisionX
         self.rect.y += self.decisionY
 
-        collision_list = pygame.sprite.spritecollide(self, sprite_list, False)
+        collision_list = pygame.sprite.spritecollide(self, self.sprite_list, False)
         for temp in collision_list:
             if temp != self:
                 if self.decisionX > 0:  # igrac se pomera desno
@@ -84,7 +77,7 @@ class Enemy (pygame.sprite.Sprite):
                 elif self.decisionY < 0:  # gore
                     self.rect.top = temp.rect.bottom
 
-    def spotEnemy(self, sprite_list):
+    def spotEnemy(self):
         if self.rect.x % 50 == 0 and self.player.rect.x % 50 == 0:
             # i == y, j == x koordinatama
             enemyX = self.rect.x // 50
@@ -132,3 +125,7 @@ class Enemy (pygame.sprite.Sprite):
                 return True
 
         return False
+
+    def run(self):
+        #while self.carryOn[0]:
+            self.moveEnemy()
