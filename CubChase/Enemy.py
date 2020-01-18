@@ -3,30 +3,37 @@ import random
 import GameConfig as config
 from GameStaticObject import *
 import time
-import  GameDynamicObject
 pygame.init()
 
 
-class Enemy (GameDynamicObject.GameDynamicObject):
+class Enemy (pygame.sprite.Sprite):
     # u slucaju vise slika, proslediti sliku kao argument konstuktora
-    def __init__(self, image, x, y, gameTerrain, sprite_list, carryOn, screen):
+    def __init__(self, image, width, height, x, y, gameTerrain, sprite_list):
         # poziv konstruktora od roditelja
-        super().__init__(50, 50, x, y, image, gameTerrain, carryOn, sprite_list,screen)
+        super().__init__()
 
-        # py game width, height and image
-        self.image = pygame.Surface([50, 50])
+        # visina i sirana slike
+        self.image = pygame.Surface([width, height])
         self.image = image
+
+        # napravi se pravougaonik cije su dimenzije jednake dimenziji slike
         self.rect = self.image.get_rect()
-        # start position
+
+        # pocetni polozaj igraca
         self.rect.x = x
         self.rect.y = y
-        self.decisionX = config.speed
+
+        self.gameTerrain = gameTerrain
+
+        self.decisionX = config.speed_enemy
         self.decisionY = 0
 
         for temp in sprite_list:
+
             if temp.__class__.__name__ == "Player":
                 self.player = temp
                 break
+
 
     def makeDecision(self):
 
@@ -40,31 +47,31 @@ class Enemy (GameDynamicObject.GameDynamicObject):
                     putanja = 0
 
                 if putanja == Orientation.up:
-                    self.decisionY = -config.speed
+                    self.decisionY = -config.speed_enemy
                     self.decisionX = 0
                 elif putanja == Orientation.down:
-                    self.decisionY = config.speed
+                    self.decisionY = config.speed_enemy
                     self.decisionX = 0
                 elif putanja == Orientation.left:
                     self.decisionY = 0
-                    self.decisionX = -config.speed
+                    self.decisionX = -config.speed_enemy
                 elif putanja == Orientation.right:
                     self.decisionY = 0
-                    self.decisionX = config.speed
+                    self.decisionX = config.speed_enemy
                 else:
                     self.decisionX = 0
                     self.decisionY = 0
 
-    def moveEnemy(self):     #sprite list je lista objekata (zidovi, igraci i ostalo)
-        if not self.spotEnemy():
+    def moveEnemy(self, sprite_list):     #sprite list je lista objekata (zidovi, igraci i ostalo)
+        if not self.spotEnemy(sprite_list):
             self.makeDecision()
 
         self.rect.x += self.decisionX
         self.rect.y += self.decisionY
 
-        collision_list = pygame.sprite.spritecollide(self, self.sprite_list, False)
+        collision_list = pygame.sprite.spritecollide(self, sprite_list, False)
         for temp in collision_list:
-            if temp != self:
+            if temp.__class__.__name__ != "Enemy":
                 if self.decisionX > 0:  # igrac se pomera desno
                     self.rect.right = temp.rect.left
 
@@ -77,7 +84,7 @@ class Enemy (GameDynamicObject.GameDynamicObject):
                 elif self.decisionY < 0:  # gore
                     self.rect.top = temp.rect.bottom
 
-    def spotEnemy(self):
+    def spotEnemy(self, sprite_list):
         if self.rect.x % 50 == 0 and self.player.rect.x % 50 == 0:
             # i == y, j == x koordinatama
             enemyX = self.rect.x // 50
@@ -92,13 +99,13 @@ class Enemy (GameDynamicObject.GameDynamicObject):
                     for i in range(playerY, enemyY):
                         if (self.gameTerrain[i][enemyX]).fieldType == StaticEl.wall:
                             return False
-                    self.decisionY = -config.speed
+                    self.decisionY = -config.speed_enemy
                 else:
                     # proveri da li na toj liniji ima prepreka, ako ima ne moze ga videti -> return False, odnosno pozvace se makeDecision
                     for i in range(enemyY, playerY):
                         if (self.gameTerrain[i][enemyX]).fieldType == StaticEl.wall:
                             return False
-                    self.decisionY = config.speed
+                    self.decisionY = config.speed_enemy
                 self.decisionX = 0
                 return True
 
@@ -114,18 +121,14 @@ class Enemy (GameDynamicObject.GameDynamicObject):
                     for i in range(playerX, enemyX):
                         if (self.gameTerrain[enemyY][i]).fieldType == StaticEl.wall:
                             return False
-                    self.decisionX = -config.speed
+                    self.decisionX = -config.speed_enemy
                 else:
                     # proveri da li na toj liniji ima prepreka, ako ima ne moze ga videti -> return False, odnosno pozvace se makeDecision
                     for i in range(enemyX, playerX):
                         if (self.gameTerrain[enemyY][i]).fieldType == StaticEl.wall:
                             return False
-                    self.decisionX = config.speed
+                    self.decisionX = config.speed_enemy
                 self.decisionY = 0
                 return True
 
         return False
-
-    def run(self):
-        #while self.carryOn[0]:
-            self.moveEnemy()
