@@ -264,10 +264,11 @@ class StartMenu():
                     #bilo 322 i 490
                     if 347 < mouse_pos[0] < 505 and 335 < mouse_pos[1] < 385:  # za click na connect
                         #print('Connect')
-                        play = Play(2, self.screen, self.clock, gameTerrain)
-                        process = mp.Process(target=play.establish_a_connection())
-                        process.start()
-                        process.join()
+                        play = Play(9, self.screen, self.clock, gameTerrain)
+                        play.establish_a_connection()
+                        #process = mp.Process(target=play.establish_a_connection())
+                        #process.start()
+                        #process.join()
                         pygame.mouse.set_visible(True)
                         pygame.mixer.music.play(-1)
                         self.start_menu()

@@ -15,13 +15,14 @@ class Player:
         self.list = []
         self.player = player
 
+
     # detect what key is pressed
     def player_control(self):
 
         if keyboard.is_pressed('q'):  # if key 'q' is pressed
             self.finished = True
 
-        if self.player == 1:
+        if self.player == 1 or self.player == 3:
             if keyboard.is_pressed(keyboard.key_to_scan_codes("left arrow")):
                 self.movePlayer(-config.speed, 0)
             if keyboard.is_pressed(keyboard.key_to_scan_codes("right arrow")):
@@ -33,12 +34,13 @@ class Player:
         elif self.player == 2:
             if keyboard.is_pressed(keyboard.key_to_scan_codes("a")):
                 self.movePlayer(-config.speed, 0)
-            if keyboard.is_pressed(keyboard.key_to_scan_codes("i")):
+            if keyboard.is_pressed("d"):
                 self.movePlayer(config.speed, 0)
             if keyboard.is_pressed(keyboard.key_to_scan_codes("w")):
                 self.movePlayer(0, -config.speed)
             if keyboard.is_pressed(keyboard.key_to_scan_codes("s")):
                 self.movePlayer(0, config.speed)
+
 
     # change coordinates of player
     def movePlayer(self, x, y):
@@ -76,6 +78,7 @@ class PlayerRender(pygame.sprite.Sprite):
         self.game_terrain = game_terrain
         self.sprite_list = sprite_list
 
+        self.enemy_traped = False
         self.lives = lives
         self.score = 0
         self.total_score = 0
@@ -126,7 +129,7 @@ class PlayerRender(pygame.sprite.Sprite):
                     self.rect.bottom = temp.rect.top
                 if y < 0:  # gore
                     self.rect.top = temp.rect.bottom
-                if temp.__class__.__name__ == "EnemyRender":
+                if temp.__class__.__name__ == "EnemyRender" and not self.enemy_traped:
                     if self.lives > 0:
                         self.lives -= 1
                         self.rect.x = self.start_position[0]

@@ -98,19 +98,20 @@ class Enemy:
                     self.x = 0
 
     def return_new_coordinates(self, queue):
-        queue.put((self.x, self.y, self.carryOn))
+        queue.put((self.x, self.y, self.finished))
 
     # process
     def run_enemy(self, queue, queue1):
         self.queue = queue
         while not self.finished:
             data = queue1.get ()
-            self.carryOn = data[0]
+            self.finished = data[0]
             self.player_x = data[1][0]
             self.player_y = data[1][1]
             self.enemy_x = data[2][0]
             self.enemy_y = data[2][1]
             self.game_terrain = data[3]
+
             self.moveEnemy ()
             self.return_new_coordinates (self.queue)
 
@@ -138,6 +139,7 @@ class EnemyRender (pygame.sprite.Sprite):
 
         self.sprite_list = sprite_list
 
+        self.step_in_mud = False
         for temp in sprite_list:
 
             if temp.__class__.__name__ == "PlayerRender":
@@ -161,7 +163,7 @@ class EnemyRender (pygame.sprite.Sprite):
                     self.rect.bottom = temp.rect.top
                 if y < 0:  # gore
                     self.rect.top = temp.rect.bottom
-                if temp.__class__.__name__ == "PlayerRender":
+                if temp.__class__.__name__ == "PlayerRender" and not self.step_in_mud:
                     if temp.lives > 0:
                         temp.lives -= 1
                         temp.rect.x = temp.start_position[0]
