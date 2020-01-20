@@ -3,10 +3,10 @@ from Play import *
 from pygame.locals import *
 from collections import OrderedDict
 import sys
-from copy import deepcopy
+import multiprocessing as mp
+
 
 active = None
-
 
 
 # 1 se poziva
@@ -16,12 +16,13 @@ class StartMenu():
         pygame.init()
         pygame.display.set_caption("Cub chase")
         music = pygame.mixer.music.load(files_path + "menu.mp3")
-        pygame.mixer.music.play(-1)
+        #pygame.mixer.music.play(-1)
         pygame.mixer.music.set_volume(0.5)
         self.font = pygame.font.SysFont("monospace", 30)
         self.clock = pygame.time.Clock()
         self.screen = pygame.display.set_mode((width, height))
         self.main_menu = self.activate_menu()
+        self._display_surf = pygame.display.set_mode((config.width, config.height), pygame.HWSURFACE)
 
     def activate_menu(self):
         main_menu = Menu(self.screen,
@@ -31,6 +32,8 @@ class StartMenu():
                                 ('Multiplayer - Offline', self.two_players_offline),
 
                                 ('Multiplayer - Online', self.two_players_online),
+
+                                ('Tournament', self.tournament),
 
                                 ('Controls', self.show_controls),
 
@@ -60,7 +63,6 @@ class StartMenu():
                             option.function[0](option.function[1])
 
     def show_controls(self):
-        # pygame.mixer.music.pause()
         pygame.mixer.music.set_volume(0.3)
         global active
         active = False
@@ -72,101 +74,216 @@ class StartMenu():
 
         self.start_menu()
 
+    def tournament(self):
+        bg = pygame.image.load("img/white.png")
+        self.screen.blit(bg, [0, 0])
+        background_for_result = pygame.image.load("img/Tournament_start_screen.jpg")
+        self.screen.blit(background_for_result, [0, 0])
+
+        font = pygame.font.Font('Base05.ttf', 20)
+        black = (255, 204, 51)
+        back_table = pygame.image.load("img/Left_sign.png")
+        back_table = pygame.transform.scale(back_table, (200, 50))
+
+        table_for_number_of_players = pygame.image.load("img/Right_sign.png")
+        table_for_number_of_players = pygame.transform.scale(table_for_number_of_players, (200, 50))
+
+        self.screen.blit(back_table, [0, 535])  # dole levo
+
+        back_text = font.render('HOME', True, black)
+        backRect = back_text.get_rect()
+        backRect.center = (95, 560)
+        self._display_surf.blit(back_text, backRect)
+
+        self.screen.blit(table_for_number_of_players, [300, 465])  # 8 igraca tabla
+        self.screen.blit(table_for_number_of_players, [300, 400])   # 7 igraca tabla
+        self.screen.blit(table_for_number_of_players, [300, 335])   # 6 igraca tabla
+        self.screen.blit(table_for_number_of_players, [300, 270])   # 5 igraca tabla
+        self.screen.blit(table_for_number_of_players, [300, 205])   # 4 igraca tabla
+
+        four_players_text = font.render('4 PLAYERS', True, black)
+        four_players_rect = four_players_text.get_rect()
+        four_players_rect.center = (400, 230)
+
+        five_players_text = font.render('5 PLAYERS', True, black)
+        five_players_rect = five_players_text.get_rect()
+        five_players_rect.center = (400, 295)
+
+        six_players_text = font.render('6 PLAYERS', True, black)
+        six_players_rect = six_players_text.get_rect()
+        six_players_rect.center = (400, 360)
+
+        seven_players_text = font.render('7 PLAYERS', True, black)
+        seven_players_rect = seven_players_text.get_rect()
+        seven_players_rect.center = (400, 425)
+
+        eight_players_text = font.render('8 PLAYERS', True, black)
+        eight_players_rect = eight_players_text.get_rect()
+        eight_players_rect.center = (400, 490)
+
+        self._display_surf.blit(four_players_text, four_players_rect)
+        self._display_surf.blit(five_players_text, five_players_rect)
+        self._display_surf.blit(six_players_text, six_players_rect)
+        self._display_surf.blit(seven_players_text, seven_players_rect)
+        self._display_surf.blit(eight_players_text, eight_players_rect)
+
+        pygame.display.update()
+        wait = True
+        while wait:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.time.delay(500)
+                    self.start_menu()
+                    return
+
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    mouse_pos = event.pos
+                    if 322 < mouse_pos[0] < 490 and 205 < mouse_pos[1] < 255: #za 4 igraca
+                        print('4 igraca')
+                        play = Play(4, self.screen, self.clock, gameTerrain)
+                        process = mp.Process(target=play.initialize_tournament())
+                        process.start()
+                        process.join()
+                        pygame.mouse.set_visible(True)
+                        pygame.mixer.music.play(-1)
+                        self.start_menu()
+                        return
+
+                    if 322 < mouse_pos[0] < 490 and 270 < mouse_pos[1] < 320: #za 5 igraca
+                        print('5 igraca')
+                        play = Play(5, self.screen, self.clock, gameTerrain)
+                        process = mp.Process(target=play.initialize_tournament())
+                        process.start()
+                        process.join()
+                        pygame.mouse.set_visible(True)
+                        pygame.mixer.music.play(-1)
+                        self.start_menu()
+                        return
+
+                    if 322 < mouse_pos[0] < 490 and 335 < mouse_pos[1] < 385: #za 6 igraca
+                        print('6 igraca')
+                        play = Play(6, self.screen, self.clock, gameTerrain)
+                        process = mp.Process(target=play.initialize_tournament())
+                        process.start()
+                        process.join()
+                        pygame.mouse.set_visible(True)
+                        pygame.mixer.music.play(-1)
+                        self.start_menu()
+                        return
+
+                    if 322 < mouse_pos[0] < 490 and 400 < mouse_pos[1] < 450: #za 7 igraca
+                        print('7 igraca')
+                        play = Play(7, self.screen, self.clock, gameTerrain)
+                        process = mp.Process(target=play.initialize_tournament())
+                        process.start()
+                        process.join()
+                        pygame.mouse.set_visible(True)
+                        pygame.mixer.music.play(-1)
+                        self.start_menu()
+                        return
+
+                    if 322 < mouse_pos[0] < 490 and 465 < mouse_pos[1] < 515: #za 8 igraca
+                        print('8 igraca')
+                        play = Play(8, self.screen, self.clock, gameTerrain)
+                        process = mp.Process(target=play.initialize_tournament())
+                        process.start()
+                        process.join()
+                        pygame.mouse.set_visible(True)
+                        pygame.mixer.music.play(-1)
+                        self.start_menu()
+                        return
+
+                    if 30 < mouse_pos[0] < 180 and 535 < mouse_pos[1] < 585:  # za HOME
+                        pygame.mouse.set_visible(True)
+                        pygame.mixer.music.play(-1)
+                        pygame.time.delay(500)
+                        self.start_menu()
+                        return
+
     def one_player(self):
         active = False
         play = Play(1, self.screen, self.clock, gameTerrain)
-        queue = mp.Queue()
-        process = mp.Process(target=play.one_player())
-        process.start()
-        process.join()
-        #gameMapReturned = queue.get()
+        play.one_player()
+
         pygame.mouse.set_visible(True)
-        pygame.mixer.music.play(-1)
+        #pygame.mixer.music.play(-1)
 
-
-
-        """
-        player_score = pygame.transform.scale (pygame.image.load (files_path + "1player_score.jpg"), (width,
-                                                                                                       height))
-        self.screen.blit(player_score, (0, 0))
-        pygame.display.update ()
-        pygame.time.delay (5000)
-        
-        font_obj = pygame.font.Font ('freesansbold.ttf', 32)
-        text_surface_obj = font_obj.render ('Hello World!', True, (0, 255, 0), (0, 0, 180))
-        text_rect_obj = text_surface_obj.get_rect ()
-        self.screen.fill((0, 0, 0))
-        self.screen.blit (text_surface_obj, text_rect_obj)
-        pygame.display.update ()
-        pygame.time.delay (5000)
-        """
-        self.start_menu()
-
-        return
+        active = True
 
     def two_players_offline(self):
         play = Play(2, self.screen, self.clock, gameTerrain)
-        process = mp.Process(target=play.two_players_firstPlayer())
-        #process1 = mp.Process (target=play.two_players_secondPlayer())
-
-        process.start()
-        #process1.start()
-        process.join()
-        #process1.join ()
+        play.two_players_offline('Player 1', 'Player 2')
 
         pygame.mouse.set_visible(True)
-        pygame.mixer.music.play(-1)
-
-        #score = 0
-        #for i in range(0, 12):
-            #for j in range(0, 16):
-                #if (gameTerrain[i][j]).fieldType == StaticEl.pathPlayer1:
-
-
-                    # score += 100
-        # print(score)
-
-
+        #pygame.mixer.music.play(-1)
 
         self.start_menu()
-
         return
 
     def two_players_online(self):
-        a = 5
+        bg = pygame.image.load("img/white.png")
+        self.screen.blit(bg, [0, 0])
+        background_for_result = pygame.image.load("img/Online_start_screen2.jpg")
+        self.screen.blit(background_for_result, [0, 0])
 
-    # proba
-    def two_players_firstPlayer(self):
-        for i in range(0, 10):
-            print("Prvi proces", i)
+        font = pygame.font.Font('Base05.ttf', 20)
+        black = (255, 204, 51)
+        back_table = pygame.image.load("img/Left_sign.png")
+        back_table = pygame.transform.scale(back_table, (200, 50))
 
-    def two_players_secondPlayer(self):
-        for i in range(0, 10):
-            print("Drugi proces", i)
+        table_for_connect = pygame.image.load("img/Right_sign.png")
+        table_for_connect = pygame.transform.scale(table_for_connect, (200, 50))
+
+        self.screen.blit(back_table, [0, 535])  # dole levo
+
+        back_text = font.render('HOME', True, black)
+        backRect = back_text.get_rect()
+        backRect.center = (95, 560)
+        self._display_surf.blit(back_text, backRect)
+
+        self.screen.blit(table_for_connect, [325, 335]) #bilo 300 i 335
+
+        connect_text = font.render('CONNECT', True, black)
+        connect_text_rect = connect_text.get_rect()
+        connect_text_rect.center = (425, 360) #bilo 400 i 360
+
+        self._display_surf.blit(connect_text, connect_text_rect)
+
+        pygame.display.update()
+        wait = True
+        while wait:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.time.delay(500)
+                    self.start_menu()
+                    return
+
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    mouse_pos = event.pos
+
+                    #bilo 322 i 490
+                    if 347 < mouse_pos[0] < 505 and 335 < mouse_pos[1] < 385:  # za click na connect
+                        #print('Connect')
+                        play = Play(9, self.screen, self.clock, gameTerrain)
+                        play.establish_a_connection()
+                        #process = mp.Process(target=play.establish_a_connection())
+                        #process.start()
+                        #process.join()
+                        pygame.mouse.set_visible(True)
+                        pygame.mixer.music.play(-1)
+                        self.start_menu()
+                        return
+
+                    if 30 < mouse_pos[0] < 180 and 535 < mouse_pos[1] < 585:  # za HOME
+                        pygame.mouse.set_visible(True)
+                        pygame.mixer.music.play(-1)
+                        pygame.time.delay(500)
+                        self.start_menu()
+                        return
 
     def leave_game(self):
         pygame.quit()
         sys.exit()
-
-    ########################## ja dodao by DJOLE ################################
-    def get_score(self):
-        sum = 0
-        for i in range(0, 12):
-            for j in range(0, 16):
-                if (gameTerrain[i][j]).fieldType == StaticEl.pathPlayer1:
-                    sum += 1
-
-        return sum * 100
-
-    def get_score2(self):
-        sum = 0
-        for i in range(0, 12):
-            for j in range(0, 16):
-                if (gameTerrain[i][j]).fieldType == StaticEl.pathPlayer2:
-                    sum += 1
-
-        return sum * 100
-    ############################################################################
 
 
 class Menu():
@@ -190,9 +307,9 @@ class Menu():
             if menu_option.text == "Single player":
                 menu_option.set_position(250, 180)
             elif menu_option.text == "Controls":
-                menu_option.set_position(250, height - 205)
-            elif menu_option.text == "Exit":
                 menu_option.set_position(250, height - 135)
+            elif menu_option.text == "Exit":
+                menu_option.set_position(250, height - 85)
             else:
                 menu_option.set_position(pos_x, pos_y)
             self.options.append(menu_option)
