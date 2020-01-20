@@ -20,3 +20,11 @@ animacije, prikaz rezultata, prikaz zivota za vreme igre
 gubitak zivota, colliders
 
 
+two players online time delay u prvom while-u??????
+
+
+
+
+
+
+sigurica -> brzina enemy-a u zavisnosti od nivoa

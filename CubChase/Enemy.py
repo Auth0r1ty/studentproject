@@ -7,8 +7,9 @@ pygame.init()
 
 
 class Enemy:
-    def __init__(self):
-        self.x = config.speed
+    def __init__(self, speed: int = 1):
+        #self.x = config.speed
+        self.x = speed
         self.y = 0
         self.player_x = 0
         self.player_y = 0
@@ -16,6 +17,10 @@ class Enemy:
         self.enemy_y = 0
         self.finished = False
         self.game_terrain = None
+        #posto je ovo proces, on uzme ono kako je u memoriji (hard) i to kopira u svoje vrednosti, tako da on ne radi sa
+        #promenjenim config speed-om nego sa onim sto je bas zapisano u fajlu, zato mora ovo polje koje ce se setovati prilikom pokretanja
+        #procesa enemy-a
+        self.speed = speed
 
     def moveEnemy(self):
         if not self.spotEnemy():
@@ -36,13 +41,13 @@ class Enemy:
                     for i in range(playerY, enemyY):
                         if (config.gameMap[i][enemyX]) == StaticEl.wall:
                             return False
-                    self.y = -config.speed_enemy
+                    self.y = -self.speed
                 else:
                     # proveri da li na toj liniji ima prepreka, ako ima ne moze ga videti -> return False, odnosno pozvace se makeDecision
                     for i in range(enemyY, playerY):
                         if (config.gameMap[i][enemyX]) == StaticEl.wall:
                             return False
-                    self.y = config.speed_enemy
+                    self.y = self.speed
                 self.x = 0
                 return True
 
@@ -58,13 +63,13 @@ class Enemy:
                     for i in range(playerX, enemyX):
                         if (config.gameMap[enemyY][i]) == StaticEl.wall:
                             return False
-                    self.x = -config.speed_enemy
+                    self.x = -self.speed
                 else:
                     # proveri da li na toj liniji ima prepreka, ako ima ne moze ga videti -> return False, odnosno pozvace se makeDecision
                     for i in range(enemyX, playerX):
                         if (config.gameMap[enemyY][i]) == StaticEl.wall:
                             return False
-                    self.x = config.speed_enemy
+                    self.x = self.speed
                 self.y = 0
                 return True
 
@@ -82,17 +87,17 @@ class Enemy:
                     putanja = 0
 
                 if putanja == Orientation.up:
-                    self.y = -config.speed_enemy
+                    self.y = -self.speed
                     self.x = 0
                 elif putanja == Orientation.down:
-                    self.y = config.speed_enemy
+                    self.y = self.speed
                     self.x = 0
                 elif putanja == Orientation.left:
                     self.y = 0
-                    self.x = -config.speed_enemy
+                    self.x = -self.speed
                 elif putanja == Orientation.right:
                     self.y = 0
-                    self.x = config.speed_enemy
+                    self.x = self.speed
                 else:
                     self.y = 0
                     self.x = 0
@@ -134,7 +139,7 @@ class EnemyRender (pygame.sprite.Sprite):
         self.rect.x = x
         self.rect.y = y
 
-        self.decisionX = config.speed_enemy
+        self.decisionX = self.enemy.speed
         self.decisionY = 0
 
         self.sprite_list = sprite_list

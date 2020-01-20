@@ -2,10 +2,13 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="b183cbef-5bb5-4bc1-980c-890af2281bbc" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/studentproject.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/studentproject.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CubChase/Menu.py" beforeDir="false" afterPath="$PROJECT_DIR$/CubChase/Menu.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CubChase/Player.py" beforeDir="false" afterPath="$PROJECT_DIR$/CubChase/Player.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CubChase/img/1player_score.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/CubChase/img/1player_score.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CubChase/Enemy.py" beforeDir="false" afterPath="$PROJECT_DIR$/CubChase/Enemy.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CubChase/GameConfig.py" beforeDir="false" afterPath="$PROJECT_DIR$/CubChase/GameConfig.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CubChase/Play.py" beforeDir="false" afterPath="$PROJECT_DIR$/CubChase/Play.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ToDo.txt" beforeDir="false" afterPath="$PROJECT_DIR$/ToDo.txt" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -42,7 +45,7 @@
     </option>
   </component>
   <component name="RunManager" selected="Python.Main">
-    <configuration name="Main" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration name="Main" type="PythonConfigurationType" factoryName="Python" singleton="false" temporary="true">
       <module name="studentproject" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -84,9 +87,36 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="ServerConnect" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="studentproject" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/CubChase" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/CubChase/ServerConnect.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <list>
+      <item itemvalue="Python.Main" />
+      <item itemvalue="Python.Play" />
+      <item itemvalue="Python.ServerConnect" />
+    </list>
     <recent_temporary>
       <list>
         <item itemvalue="Python.Main" />
+        <item itemvalue="Python.ServerConnect" />
         <item itemvalue="Python.Play" />
       </list>
     </recent_temporary>
@@ -116,5 +146,23 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <condition expression="not (self.player1.player.x == 0 or self.player1.player.y == 0)" language="Python" />
+          <url>file://$PROJECT_DIR$/CubChase/Play.py</url>
+          <line>1365</line>
+          <option name="timeStamp" value="30" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <condition expression="not (self.player1.player.x == 0 or self.player1.player.y == 0)" language="Python" />
+          <url>file://$PROJECT_DIR$/CubChase/Play.py</url>
+          <line>1374</line>
+          <option name="timeStamp" value="31" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>
