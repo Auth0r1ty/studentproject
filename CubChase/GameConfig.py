@@ -63,7 +63,7 @@ height = 600
 width = 800
 speed = 5
 fps = 60
-speed_enemy = 5
+speed_enemy = 2
 
 #ja menjao mapu by DJOLE
 gameMap = [

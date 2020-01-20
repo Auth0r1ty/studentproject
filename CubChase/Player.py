@@ -19,10 +19,10 @@ class Player:
     # detect what key is pressed
     def player_control(self):
 
-        if keyboard.is_pressed('q'):  # if key 'q' is pressed
-            self.finished = True
+        #if keyboard.is_pressed('q'):  # if key 'q' is pressed
+            #self.finished = True
 
-        if self.player == 1 or self.player == 3:
+        if self.player == 1:
             if keyboard.is_pressed(keyboard.key_to_scan_codes("left arrow")):
                 self.movePlayer(-config.speed, 0)
             if keyboard.is_pressed(keyboard.key_to_scan_codes("right arrow")):

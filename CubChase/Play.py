@@ -3,7 +3,7 @@ from threading import Timer
 import GameConfig as config
 from Player import Player, PlayerRender
 from Enemy import Enemy, EnemyRender
-from Enums import  StaticEl, MudState
+from Enums import StaticEl, MudState
 from ClientConnect import ClientConnect
 import datetime
 from enum import *
@@ -89,12 +89,12 @@ class Play():
         self.score = 0
 
         if brojIgraca == 9: #oznacava da je online
-            playerPom1 = Player(3)
+            playerPom1 = Player(1)
             self.player1 = PlayerRender(400, 400, playerPom1, StaticEl.pathPlayer1, self.screen, config.simba, 50, 50,
                                         self.gameTerrain, self.sprite_list, self._display_surf)
             self.sprite_list.add(self.player1)
 
-            playerPom2 = Player(3)
+            playerPom2 = Player(1)
             self.player2 = PlayerRender(500, 400, playerPom2, StaticEl.pathPlayer2, self.screen, config.nala, 50, 50,
                                         self.gameTerrain, self.sprite_list, self._display_surf)
             self.sprite_list.add(self.player2)
@@ -204,11 +204,13 @@ class Play():
 
             # lista x, y dobijena na osnovu pritisnutih tastera
             list = player_result[0]
+            """
             self.player1.player.finished = player_result[1]
 
             if self.player1.player.finished:
                 self.rage_quit = True
-                self.game_over = True
+                self.game_over = True            """
+
 
             for temp in list:
                 self.player1.leave_tracks(temp[0], temp[1])
@@ -269,13 +271,13 @@ class Play():
                 if self.mud1_status == MudState.active and not step_in_mud:
                     #self.enemy1.enemy.step_in_mud = True
                     step_in_mud = True
+                    #self.sprite_list.remove (self.enemy1)
                     self.player1.enemy_traped = True
                     self.enemy1.step_in_mud = True
                     start_time = datetime.datetime.now()
 
             if self.enemy1.rect.x == 350 and self.enemy1.rect.y == 500:
                 if self.mud2_status == MudState.active and not step_in_mud:
-                    #self.enemy1.enemy.step_in_mud = True
                     step_in_mud = True
                     self.player1.enemy_traped = True
                     self.enemy1.step_in_mud = True
@@ -398,6 +400,17 @@ class Play():
             self.enemy1.rect.y = 50
             self.level += 1
 
+            if self.level == 2:
+                config.speed_enemy = 2
+            elif self.level == 3:
+                config.speed_enemy = 2
+            elif self.level == 4:
+                config.speed_enemy = 5
+            elif self.level == 5:
+                config.speed_enemy = 5
+            elif self.level >= 6:
+                config.speed_enemy = 10
+
             self.show_bonus = False
             self.heart_counter = 0
             self.game_over = False
@@ -410,6 +423,8 @@ class Play():
             self.one_player()
 
     def show_game_over(self): #za jednog igraca tj single player
+        config.speed_enemy = 1
+
         bg = pygame.image.load("img/white.png")
         self.screen.blit(bg, [0, 0])
         self.background_for_result = pygame.image.load("img/1player_game_over.jpg")
@@ -516,6 +531,7 @@ class Play():
                     self.player1.player.finished = True
                     self.player2.player.finished = True
                     self.rage_quit = True
+                    #self.game_over = True
                     self.tournament_finished = True
 
             if self.player1.lives == 0:
@@ -553,6 +569,8 @@ class Play():
                     self.player1.collision (temp[0], temp[1])
 
                 self.player1.draw_map ()
+            else:
+                self.player1.draw_map ()
 
             ####################################
             if not self.player2.player.finished:
@@ -573,6 +591,8 @@ class Play():
                     self.player2.move_player (temp[0], temp[1])
                     self.player2.collision (temp[0], temp[1])
 
+                self.player2.draw_map ()
+            else:
                 self.player2.draw_map ()
 
 
@@ -608,7 +628,7 @@ class Play():
                     else:
                         enemy_one_queue_send.put([self.player2.player.finished,
                                                   (self.player2.rect.x, self.player2.rect.y),
-                                                  (self.enemy2.rect.x, self.enemy2.rect.y),
+                                                  (self.enemy1.rect.x, self.enemy1.rect.y),
                                                   game_terrain])
 
                         enemy_result = enemy_one_queue_receive.get()
@@ -629,7 +649,7 @@ class Play():
                 else:
                     enemy_one_queue_send.put([self.player2.player.finished,
                                               (self.player2.rect.x, self.player2.rect.y),
-                                              (self.enemy2.rect.x, self.enemy2.rect.y),
+                                              (self.enemy1.rect.x, self.enemy1.rect.y),
                                               game_terrain])
 
                     enemy_result = enemy_one_queue_receive.get()
@@ -658,7 +678,7 @@ class Play():
                     else:
                         enemy_two_queue_send.put([self.player1.player.finished,
                                                   (self.player1.rect.x, self.player1.rect.y),
-                                                  (self.enemy1.rect.x, self.enemy1.rect.y),
+                                                  (self.enemy2.rect.x, self.enemy2.rect.y),
                                                   game_terrain])
 
                         enemy_result = enemy_two_queue_receive.get()
@@ -679,7 +699,7 @@ class Play():
                 else:
                     enemy_two_queue_send.put([self.player1.player.finished,
                                               (self.player1.rect.x, self.player1.rect.y),
-                                              (self.enemy1.rect.x, self.enemy1.rect.y),
+                                              (self.enemy2.rect.x, self.enemy2.rect.y),
                                               game_terrain])
 
                     enemy_result = enemy_two_queue_receive.get()
@@ -973,6 +993,18 @@ class Play():
                 self.enemy2.rect.y = 50
 
                 self.level += 1
+
+                if self.level == 2:
+                    config.speed_enemy = 2
+                elif self.level == 3:
+                    config.speed_enemy = 2
+                elif self.level == 4:
+                    config.speed_enemy = 5
+                elif self.level == 5:
+                    config.speed_enemy = 5
+                elif self.level >= 6:
+                    config.speed_enemy = 10
+
                 self.show_bonus = False
                 self.heart_counter = 0
                 self.game_over = False
@@ -985,6 +1017,8 @@ class Play():
                 self.two_players_offline(self.player1_name, self.player2_name)
 
     def show_game_over_multiplayer(self):
+        config.speed_enemy = 1
+
         if not self.rage_quit:
             bg = pygame.image.load("img/white.png")
             self.screen.blit(bg, [0, 0])
@@ -1649,7 +1683,10 @@ class Play():
         if not wait1:
             config.map_init(self.sprite_list)
             if self.player1_dead:
-                self.player1 = Player(config.simba, 5, 50, 50, 400, 400, self.gameTerrain)
+                playerPom1 = Player (1)
+                self.player1 = PlayerRender (400, 400, playerPom1, StaticEl.pathPlayer1, self.screen, config.simba, 50,
+                                             50,
+                                             self.gameTerrain, self.sprite_list, self._display_surf)
                 self.sprite_list.add(self.player1)
                 self.player1_dead = False
 
@@ -1660,7 +1697,9 @@ class Play():
             self.player1_finished = False
 
             if self.player2_dead:
-                self.player2 = Player(config.nala, 6, 50, 50, 500, 400, self.gameTerrain)
+                playerPom2 = Player (1)
+                self.player2 = PlayerRender (500, 400, playerPom2, StaticEl.pathPlayer2, self.screen, config.nala, 50,
+                                             50, self.gameTerrain, self.sprite_list, self._display_surf)
                 self.sprite_list.add(self.player2)
                 self.player2_dead = False
 
@@ -1835,7 +1874,7 @@ class Play():
                     self.mud2_timer.start()
 
         if self.number_of_players == 2:
-            if self.player2.rect.x == 650 and self.player2.rect.y == 300:
+            if self.player2.rect.x == 350 and self.player2.rect.y == 500:
                 if self.mud2_status == MudState.show:
                     self.mud2_status = MudState.active
                     self.mud2_timer = Timer(10.0, self.mud2_timer_check)
