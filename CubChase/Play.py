@@ -1,9 +1,12 @@
 import pygame
 from threading import Timer
 import GameConfig as config
-from Player import Player
-from Enemy import Enemy
+from Player import Player, PlayerRender
+from Enemy import Enemy, EnemyRender
+from Enums import  StaticEl, MudState
 from ClientConnect import ClientConnect
+import datetime
+from enum import *
 import sys
 import Menu
 from multiprocessing import Process, Queue, Value
@@ -18,8 +21,6 @@ class Play():
 
         ############### ja dodao by djole ###################
         self._display_surf = pygame.display.set_mode((config.width, config.height), pygame.HWSURFACE)
-        self.table_for_score = pygame.image.load("img/Tabla.png") #PREBACENO
-        self.table_for_score = pygame.transform.scale(self.table_for_score, (150, 115))
         self.sign_for_home = pygame.image.load("img/Left_sign.png") #PREBACENO
         self.sign_for_home = pygame.transform.scale(self.sign_for_home, (200, 50)) #PREBACENO
         self.sign_for_next_level = pygame.image.load("img/Right_sign.png") #PREBACENO
@@ -28,14 +29,14 @@ class Play():
         #prva zamka
         self.mud1 = pygame.image.load("img/Mud.png")
         self.mud1 = pygame.transform.scale(self.mud1, (50, 50))
-        self.mud1_status = 1 #ako ima vrednost 1, prikazi zamku, ako je 2 aktivna je, ako je 0 vec je iskoriscena
+        self.mud1_status = MudState.show #ako ima vrednost 1, prikazi zamku, ako je 2 aktivna je, ako je 0 vec je iskoriscena
         self.mud1_timer = None
         ##########################
 
         #druga zamka
         self.mud2 = pygame.image.load("img/Mud.png")
         self.mud2 = pygame.transform.scale(self.mud2, (50, 50))
-        self.mud2_status = 1 #ako ima vrednost 1, prikazi zamku, ako je 2 aktivna je, ako je 0 vec je iskoriscena
+        self.mud2_status = MudState.show #ako ima vrednost 1, prikazi zamku, ako je 2 aktivna je, ako je 0 vec je iskoriscena
         self.mud2_timer = None
         ############################################
         self.tournament = False #oznacava da li se igra ili ne turnir
@@ -84,18 +85,27 @@ class Play():
         config.map_init(self.sprite_list)
 
         #self.carryOn = True
-        self.player1 = Player(config.simba, 5, 50, 50, 400, 400, self.gameTerrain)
+
+        self.score = 0
+
+        #player, path_player, screen, image, width, height, game_terrain, lives: int = 3
+        playerPom1 = Player(1)
+        self.player1 = PlayerRender(400, 400, playerPom1, StaticEl.pathPlayer1, self.screen, config.simba, 50, 50, self.gameTerrain, self.sprite_list, self._display_surf)
         self.sprite_list.add(self.player1)
 
-        self.enemy1 = Enemy(config.pumba, 50, 50, 300, 50, self.gameTerrain, self.sprite_list)
+        enemyPom1 = Enemy()
+        self.enemy1 = EnemyRender(enemyPom1, config.pumba, 50, 50, 300, 50, self.sprite_list)
         self.sprite_list.add(self.enemy1)
 
         if brojIgraca == 2 or 3 < brojIgraca < 9:
-            self.player2 = Player(config.nala, 6, 50, 50, 500, 400, self.gameTerrain)
+            playerPom2 = Player (2)
+            self.player2 = PlayerRender (500, 400, playerPom2, StaticEl.pathPlayer2, self.screen, config.nala, 50, 50, self.gameTerrain, self.sprite_list, self._display_surf)
             self.sprite_list.add(self.player2)
-            self.enemy2 = Enemy(config.timon, 50, 50, 500, 50, self.gameTerrain, self.sprite_list)
+            enemyPom2 = Enemy ()
+            self.enemy2 = EnemyRender (enemyPom2, config.timon, 50, 50, 500, 50, self.sprite_list)
             self.sprite_list.add(self.enemy2)
 
+    # koordinate za srca (zivote)
     def show_bonus_timer_stopped(self):
         if self.heart_counter == 0:
             self.heart_coordinates = (150, 200)
@@ -132,11 +142,12 @@ class Play():
             self.heart_counter = 0
         else:
             self.heart_counter += 1
-
+        #ako je tru iscrtaj na mapi, u suprotnom ne
         self.show_bonus = True
         self.hide_bonus_timer = Timer(2.0, self.hide_bonus_timer_stopped) #posle dve sekunde se sklanja srce
         self.hide_bonus_timer.start()
 
+    # sakriva srce, pa nakon 4 sec poziva show bonus na nekoj drugoj lokaciji
     def hide_bonus_timer_stopped(self):
         self.show_bonus = False
         self.show_bonus_timer = Timer(4.0, self.show_bonus_timer_stopped)
@@ -151,53 +162,85 @@ class Play():
         self.show_bonus_timer = Timer(2.0, self.show_bonus_timer_stopped) #posle 5 sekundi prikazi srce
         self.show_bonus_timer.start()
 
-        while not self.player1_finished:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    self.player1_finished = True
-                    self.rage_quit = True
-                elif event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_ESCAPE:
-                        self.player1_finished = True
-                        self.rage_quit = True
+        player_one_queue_receive = Queue()     # red sa kod skida
+        player_one_queue_send = Queue()    # red na koji radi PUSH
 
-            keys = pygame.key.get_pressed()
-            if keys[pygame.K_LEFT]:
-                self.player1.movePlayer(-config.speed, 0, self.sprite_list)
-            if keys[pygame.K_RIGHT]:
-                self.player1.movePlayer(config.speed, 0, self.sprite_list)
-            if keys[pygame.K_UP]:
-                self.player1.movePlayer(0, -config.speed, self.sprite_list)
-            if keys[pygame.K_DOWN]:
-                self.player1.movePlayer(0, config.speed, self.sprite_list)
+        player_one_process = Process(target=self.player1.player.run_player, args=[player_one_queue_receive, player_one_queue_send])
+        player_one_process.start()
+
+        enemy_one_queue_receive = Queue ()  # red sa kod skida
+        enemy_one_queue_send = Queue ()  # red na koji radi PUSH
+
+        enemy_one_process = Process (target=self.enemy1.enemy.run_enemy, args=[enemy_one_queue_receive, enemy_one_queue_send])
+        enemy_one_process.start ()
+
+        step_in_mud = False
+        start_time = None
+
+        while not self.player1.player.finished:
+            for temp in pygame.event.get():
+                if temp.type == pygame.QUIT:
+                    self.player1.player.finished = True
+                    self.rage_quit = True
+                    self.game_over = True
+
+            player_one_queue_send.put(self.player1.player.finished)
+
+            player_result = player_one_queue_receive.get()
+
+            # lista x, y dobijena na osnovu pritisnutih tastera
+            list = player_result[0]
+            self.player1.player.finished = player_result[1]
+
+            if self.player1.player.finished:
+                self.rage_quit = True
+                self.game_over = True
+
+            for temp in list:
+                self.player1.leave_tracks(temp[0], temp[1])
+                self.player1.move_player(temp[0], temp[1])
+                self.player1.collision (temp[0], temp[1])
+
+            self.player1.draw_map ()
 
             #enemy movement
-            self.enemy1.moveEnemy(self.sprite_list)
 
-            emptyPathCounter = 0
-            # iscrtavanje mape
-            for i in range(0, 12):
-                for j in range(0, 16):
-                    if (self.gameTerrain[i][j]).fieldType == config.StaticEl.path:
-                        self.screen.blit(config.path, (j * 50, i * 50))
-                        emptyPathCounter += 1
-                    elif (self.gameTerrain[i][j]).fieldType == config.StaticEl.wall:
-                        self.screen.blit(config.wall, (j * 50, i * 50))
-                    elif (self.gameTerrain[i][j]).fieldType == config.StaticEl.enter:
-                        self.screen.blit(config.enter, (j * 50, i * 50))
-                    elif (self.gameTerrain[i][j]).fieldType == config.StaticEl.pathPlayer1:
-                        self.screen.blit((self.gameTerrain[i][j]).image, (j * 50, i * 50))
+            # ubaciti
+            # carryOn
+            # za spotEnemy metodu
+            #   koordinate od player-a
+            #   koordinate od enemy-a
 
-            if self.player1.lives <= 0:
-                self.player1_finished = True
+            game_terrain = config.gameTerrainSerializable
+            # ako ne bude uspeo da ocita gameTerrainSerializable i gameMap iz configa
+            # proslediti i njih preko reda
+
+            if step_in_mud:
+                if start_time <= datetime.datetime.now() - datetime.timedelta(seconds=5):
+                    step_in_mud = False
+                    enemy_one_queue_send.put ([self.player1.player.finished,
+                                           (self.player1.rect.x, self.player1.rect.y),
+                                           (self.enemy1.rect.x, self.enemy1.rect.y),
+                                           game_terrain])
+
+                    enemy_result = enemy_one_queue_receive.get ()
+
+                    self.enemy1.moveEnemy (enemy_result[0], enemy_result[1])
+                    self.enemy1.collision (enemy_result[0], enemy_result[1])
+            else:
+                enemy_one_queue_send.put ([self.player1.player.finished,
+                                       (self.player1.rect.x, self.player1.rect.y),
+                                       (self.enemy1.rect.x, self.enemy1.rect.y),
+                                       game_terrain])
+
+                enemy_result = enemy_one_queue_receive.get ()
+
+                self.enemy1.moveEnemy (enemy_result[0], enemy_result[1])
+                self.enemy1.collision (enemy_result[0], enemy_result[1])
+
+            if self.player1.lives == 0:
+                self.player1.player.finished = True
                 self.game_over = True
-                pygame.time.delay(500)
-
-            if self.player1.rect.x == 750 and self.player1.rect.y == 500: #znaci da je dosao dole na izlaz
-            #onda treba proveriti da li je svuda ostavio tragove, ako jeste, onda moze da izadje
-                if self.player1.path_checked > 1: #trenutno sam zakucao na onoliko koliko ima praznih polja
-                    self.player1_finished = True
-
 
             # iscrtavanje svih sprit-ova (igraci, zid)
             self.sprite_list.update()
@@ -205,13 +248,19 @@ class Play():
 
             self.check_muds() #ja dodao by djole... dodavanje i provera za zamke da l su aktivne
 
+            #provera da li je neko od enemy-a nagazio u mud
             if self.enemy1.rect.x == 650 and self.enemy1.rect.y == 300:
-                if self.mud1_status == 2:
-                    pygame.time.wait(5000)
+                if self.mud1_status == MudState.active and not step_in_mud:
+                    #self.enemy1.enemy.step_in_mud = True
+                    step_in_mud = True
+                    start_time = datetime.datetime.now()
 
             if self.enemy1.rect.x == 350 and self.enemy1.rect.y == 500:
-                if self.mud2_status == 2:
-                    pygame.time.wait(5000)
+                if self.mud2_status == MudState.active and not step_in_mud:
+                    #self.enemy1.enemy.step_in_mud = True
+                    step_in_mud = True
+                    start_time = datetime.datetime.now()
+
             ##################### ispis za poene i zivote igraca BY DJOLE #################
 
             if self.show_bonus:
@@ -219,43 +268,19 @@ class Play():
                 if self.player1.rect.x == self.heart_coordinates[0] and self.player1.rect.y == self.heart_coordinates[1] and self.player1.lives != 4:
                     self.player1.lives += 1
                     self.show_bonus = False
-            self.player1_score = self.player1.get_score()
 
-            self.screen.blit(self.table_for_score, [5, -5])
-
-            font = pygame.font.Font('freesansbold.ttf', 12)
-            black = (255, 255, 255)
-
-            level = font.render('Level ' + str(self.level), True, black)
-            levelRect = level.get_rect()
-            levelRect.center = (70, 25)
-
-            text = font.render('Player 1', True, black)
-            result = font.render(str(self.player1_score), True, black)
-            textRect = text.get_rect()
-            resRect = result.get_rect()
-            textRect.center = (70, 40)
-            resRect.center = (70, 60)
-
-            self._display_surf.blit(level, levelRect)
-            self._display_surf.blit(text, textRect)
-            self._display_surf.blit(result, resRect)
-
-            xl = 30
-            yl = 70
-            for i in range(0, self.player1.lives):
-                self.bonus_image = pygame.image.load("img/Heart.png")
-                self._display_surf.blit(self.bonus_image, [xl, yl])
-                xl = xl + 25
-            ##########################################################################
+            self.player1.get_score()
+            self.player1.show_score ("Player1", self.level, 5, -5, 70, 30)
 
             # iscrtavanje celog ekrana
             pygame.display.flip()
             self.clock.tick(config.fps)
 
+        #bonus za skor
         self.player1_bonus = self.player1.lives * 100
-        self.player1_total_score += self.player1_bonus + self.player1_score
+        self.player1.total_score = self.player1_bonus + self.player1.score
 
+        #ako pritisne x ili 'x'
         if not self.rage_quit and not self.game_over:
             pygame.time.delay(500)
             self.show_result()
@@ -273,77 +298,157 @@ class Play():
 
         self.show_bonus_timer = Timer(5.0, self.show_bonus_timer_stopped)  # posle 5 sekundi prikazi srce
         self.show_bonus_timer.start()
-        while not self.player1_finished or not self.player2_finished:
+
+
+        player_one_queue_receive = Queue ()  # red sa kod skida
+        player_one_queue_send = Queue ()  # red na koji radi PUSH
+        player_one_process = Process (target=self.player1.player.run_player, args=[player_one_queue_receive, player_one_queue_send])
+        player_one_process.start ()
+
+        player_two_queue_receive = Queue ()  # red sa kod skida
+        player_two_queue_send = Queue ()  # red na koji radi PUSH
+        player_two_process = Process (target=self.player2.player.run_player, args=[player_two_queue_receive, player_two_queue_send])
+        player_two_process.start ()
+
+
+        enemy_one_queue_receive = Queue ()  # red sa kod skida
+        enemy_one_queue_send = Queue ()  # red na koji radi PUSH
+        enemy_one_process = Process (target=self.enemy1.enemy.run_enemy, args=[enemy_one_queue_receive, enemy_one_queue_send])
+        enemy_one_process.start ()
+
+        enemy_two_queue_receive = Queue ()  # red sa kod skida
+        enemy_two_queue_send = Queue ()  # red na koji radi PUSH
+        enemy_two_process = Process (target=self.enemy2.enemy.run_enemy, args=[enemy_two_queue_receive, enemy_two_queue_send])
+        enemy_two_process.start ()
+
+
+        step_in_mud_enemy1 = False
+        step_in_mud_enemy2 = False
+        start_time_enemy1 = None
+        start_time_enemy2 = None
+
+        while not self.player1.player.finished or not self.player2.player.finished:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    self.player1_finished = True
-                    self.player2_finished = True
+                    self.player1.player.finished = True
+                    self.player2.player.finished = True
                     self.rage_quit = True
                     self.tournament_finished = True
 
-                elif event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_x:
-                        self.player1_finished = True
-                        self.player2_finished = True
-                        self.rage_quit = True
-                        self.tournament_finished = True
+            player_one_queue_send.put(self.player1.player.finished)
 
-            keys = pygame.key.get_pressed()
+            player_result = player_one_queue_receive.get()
 
-            if not self.player1_dead:
-                if keys[pygame.K_LEFT]:
-                    self.player1.movePlayer(-config.speed, 0, self.sprite_list)
-                if keys[pygame.K_RIGHT]:
-                    self.player1.movePlayer(config.speed, 0, self.sprite_list)
-                if keys[pygame.K_UP]:
-                    self.player1.movePlayer(0, -config.speed, self.sprite_list)
-                if keys[pygame.K_DOWN]:
-                    self.player1.movePlayer(0, config.speed, self.sprite_list)
+            # lista x, y dobijena na osnovu pritisnutih tastera
+            list = player_result[0]
+            self.player1.player.finished = player_result[1]
 
-            if not self.player2_dead:
-                if keys[pygame.K_a]:
-                    self.player2.movePlayer(-config.speed, 0, self.sprite_list)
-                if keys[pygame.K_d]:
-                    self.player2.movePlayer(config.speed, 0, self.sprite_list)
-                if keys[pygame.K_w]:
-                    self.player2.movePlayer(0, -config.speed, self.sprite_list)
-                if keys[pygame.K_s]:
-                    self.player2.movePlayer(0, config.speed, self.sprite_list)
+            if self.player1.player.finished:
+                self.rage_quit = True
+                self.game_over = True
 
-            self.enemy1.moveEnemy(self.sprite_list)
-            self.enemy2.moveEnemy(self.sprite_list)
+            for temp in list:
+                self.player1.leave_tracks(temp[0], temp[1])
+                self.player1.move_player(temp[0], temp[1])
+                self.player1.collision (temp[0], temp[1])
 
-            emptyPathCounter = 0
-            # iscrtavanje mape
-            for i in range(0, 12):
-                for j in range(0, 16):
-                    if (self.gameTerrain[i][j]).fieldType == config.StaticEl.path:
-                        self.screen.blit(config.path, (j * 50, i * 50))
+            self.player1.draw_map ()
 
-                    elif (self.gameTerrain[i][j]).fieldType == config.StaticEl.wall:
-                        self.screen.blit(config.wall, (j * 50, i * 50))
-                    elif (self.gameTerrain[i][j]).fieldType == config.StaticEl.enter:
-                        self.screen.blit(config.enter, (j * 50, i * 50))
-                    elif (self.gameTerrain[i][j]).fieldType == config.StaticEl.pathPlayer1:
-                        self.screen.blit((self.gameTerrain[i][j]).image, (j * 50, i * 50))
-                    elif (self.gameTerrain[i][j]).fieldType == config.StaticEl.pathPlayer2:
-                        self.screen.blit((self.gameTerrain[i][j]).image, (j * 50, i * 50))
+            ####################################
+            player_two_queue_send.put (self.player2.player.finished)
 
-                broj_cekiranih = 0
-                if self.player1.lives <= 0:
-                    broj_cekiranih += self.player1.path_checked
-                    self.player1.image = None
-                    self.sprite_list.remove(self.player1)
-                    self.player1_finished = True
-                    self.player1_dead = True
+            player_result = player_two_queue_receive.get ()
 
-                if self.player2.lives <= 0:
-                    broj_cekiranih += self.player2.path_checked
-                    self.player2.image = None
-                    self.sprite_list.remove(self.player2)
-                    self.player2_finished = True
-                    self.player2_dead = True
+            # lista x, y dobijena na osnovu pritisnutih tastera
+            list = player_result[0]
+            self.player2.player.finished = player_result[1]
 
+            if self.player2.player.finished:
+                self.rage_quit = True
+                self.game_over = True
+
+            for temp in list:
+                self.player2.leave_tracks (temp[0], temp[1])
+                self.player2.move_player (temp[0], temp[1])
+                self.player2.collision (temp[0], temp[1])
+
+            self.player2.draw_map ()
+
+            ###############################
+            game_terrain = config.gameTerrainSerializable
+            # ako ne bude uspeo da ocita gameTerrainSerializable i gameMap iz configa
+            # proslediti i njih preko reda
+
+            #######################
+
+            # PODSETNIK
+            # dodati da neprijatelj juri oba igraca
+            # samo u okviru queue-a proslediti i koordinate drugog igraca
+
+            #############
+            if step_in_mud_enemy1:
+                if start_time_enemy1 <= datetime.datetime.now () - datetime.timedelta (seconds=5):
+                    step_in_mud_enemy1 = False
+                    enemy_one_queue_send.put ([self.player1.player.finished,
+                                               (self.player1.rect.x, self.player1.rect.y),
+                                               (self.enemy1.rect.x, self.enemy1.rect.y),
+                                               game_terrain])
+
+                    enemy_result = enemy_one_queue_receive.get ()
+
+                    self.enemy1.moveEnemy (enemy_result[0], enemy_result[1])
+                    self.enemy1.collision (enemy_result[0], enemy_result[1])
+            else:
+                enemy_one_queue_send.put ([self.player1.player.finished,
+                                           (self.player1.rect.x, self.player1.rect.y),
+                                           (self.enemy1.rect.x, self.enemy1.rect.y),
+                                           game_terrain])
+
+                enemy_result = enemy_one_queue_receive.get ()
+
+                self.enemy1.moveEnemy (enemy_result[0], enemy_result[1])
+                self.enemy1.collision (enemy_result[0], enemy_result[1])
+
+            #################
+            if step_in_mud_enemy2:
+                if start_time_enemy2 <= datetime.datetime.now () - datetime.timedelta (seconds=5):
+                    step_in_mud_enemy2 = False
+                    enemy_two_queue_send.put ([self.player2.player.finished,
+                                               (self.player2.rect.x, self.player2.rect.y),
+                                               (self.enemy2.rect.x, self.enemy2.rect.y),
+                                               game_terrain])
+
+                    enemy_result = enemy_two_queue_receive.get ()
+
+                    self.enemy2.moveEnemy (enemy_result[0], enemy_result[1])
+                    self.enemy2.collision (enemy_result[0], enemy_result[1])
+            else:
+                enemy_two_queue_send.put ([self.player2.player.finished,
+                                           (self.player2.rect.x, self.player2.rect.y),
+                                           (self.enemy2.rect.x, self.enemy2.rect.y),
+                                           game_terrain])
+
+                enemy_result = enemy_two_queue_receive.get ()
+
+                self.enemy2.moveEnemy (enemy_result[0], enemy_result[1])
+                self.enemy2.collision (enemy_result[0], enemy_result[1])
+
+            # prebrojava koliko je ukupno sapica ostavljeno
+            #broj_cekiranih = 0
+            if self.player1.lives == 0:
+                #broj_cekiranih += self.player1.path_checked
+                self.player1.image = None
+                self.sprite_list.remove(self.player1)
+                self.player1.player.finished = True
+                self.player1_dead = True
+
+            if self.player2.lives == 0:
+                #broj_cekiranih += self.player2.path_checked
+                self.player2.image = None
+                self.sprite_list.remove(self.player2)
+                self.player2.player.finished = True
+                self.player2_dead = True
+            """
             if not self.player1_dead and self.player2_dead: #ako je drugi mrtav, onda omoguciti da moze prvi zavrsiti
                 if self.player1.rect.x == 750 and self.player1.rect.y == 500:
                     broj_cekiranih += self.player1.path_checked
@@ -355,13 +460,14 @@ class Play():
                     broj_cekiranih += self.player2.path_checked
                     if broj_cekiranih > 1:
                         self.player2_finished = True
+            #############################################################################################
 
-            if self.player1.rect.x == 750 and self.player1.rect.y == 500 and self.player2.rect.x == 750 and self.player2.rect.y == 500: #znaci da su dosli na izlaz
+            if (self.player1.rect.x == 750 and self.player1.rect.y == 500) and (self.player2.rect.x == 750 and self.player2.rect.y == 500): #znaci da su dosli na izlaz
             #onda treba proveriti da li je svuda ostavio tragove, ako jeste, onda moze da izadje
                 broj_cekiranih = self.player1.path_checked + self.player2.path_checked
                 if broj_cekiranih > 1: #trenutno sam zakucao na onoliko koliko ima praznih polja
                     self.player1_finished = True
-                    self.player2_finished = True
+                    self.player2_finished = True"""
 
             # iscrtavanje svih sprit-ova (igraci, zid)
             self.sprite_list.update()
@@ -369,13 +475,28 @@ class Play():
 
             self.check_muds()  # ja dodao by djole... dodavanje i provera za zamke da l su aktivne
 
-            if (self.enemy1.rect.x == 650 and self.enemy1.rect.y == 300) or (self.enemy2.rect.x == 650 and self.enemy2.rect.y == 300):
-                if self.mud1_status == 2:
-                    pygame.time.wait(5000)
+            # mora proces za enemy-a ovo trenutno stopira celu igru sa sve player-ima ali kada bude proces stopirace samo njega
+            if (self.enemy1.rect.x == 650 and self.enemy1.rect.y == 300):
+                if self.mud1_status == MudState.active and not step_in_mud_enemy1:
+                    step_in_mud_enemy1 = True
+                    start_time_enemy1 = datetime.datetime.now()
 
-            if (self.enemy1.rect.x == 350 and self.enemy1.rect.y == 500) or (self.enemy2.rect.x == 350 and self.enemy2.rect.y == 500):
-                if self.mud2_status == 2:
-                    pygame.time.wait(5000)
+            if (self.enemy2.rect.x == 650 and self.enemy2.rect.y == 300):
+                if self.mud1_status == MudState.active and not step_in_mud_enemy2:
+                    step_in_mud_enemy2 = True
+                    start_time_enemy2 = datetime.datetime.now ()
+
+
+            if (self.enemy1.rect.x == 350 and self.enemy1.rect.y == 500):
+                if self.mud2_status == MudState.active and not step_in_mud_enemy1:
+                    step_in_mud_enemy1 = True
+                    start_time_enemy1 = datetime.datetime.now ()
+
+            if (self.enemy2.rect.x == 350 and self.enemy2.rect.y == 500):
+                if self.mud2_status == MudState.active and not step_in_mud_enemy2:
+                    step_in_mud_enemy2 = True
+                    start_time_enemy2 = datetime.datetime.now ()
+
 
             if self.show_bonus:
                 self._display_surf.blit(self.bonus_image, self.heart_coordinates)
@@ -387,59 +508,17 @@ class Play():
                     self.player2.lives += 1
                     self.show_bonus = False
 
-            ##################### ispis za poene i zivote igraca BY DJOLE #################
-            self.player1_score = self.player1.get_score()
-            self.player2_score = self.player2.get_score2()
+            self.player1.get_score()
+            self.player2.get_score()
 
-            self.screen.blit(self.table_for_score, [5, -5])
-            self.screen.blit(self.table_for_score, [650, -5])
-
-            font = pygame.font.Font('freesansbold.ttf', 12)
-            black = (255, 255, 255)
-
-            level = font.render('Level ' + str(self.level), True, black)
-            levelRect = level.get_rect()
-            levelRect.center = (70, 25)
-
-            text = font.render(self.player1_name, True, black)
-            result = font.render(str(self.player1_score), True, black)
-            textRect = text.get_rect()
-            resRect = result.get_rect()
-            textRect.center = (70, 40)
-            resRect.center = (70, 60)
-
-            self._display_surf.blit(level, levelRect)
-            self._display_surf.blit(text, textRect)
-            self._display_surf.blit(result, resRect)
-
-            text2 = font.render(self.player2_name, True, black)
-            result2 = font.render(str(self.player2_score), True, black)
-            textRect2 = text2.get_rect()
-            resRect2 = result2.get_rect()
-            levelRect.center = (720, 25)
-            textRect2.center = (720, 40)
-            resRect2.center = (720, 60)
-
-            self._display_surf.blit(level, levelRect)
-            self._display_surf.blit(text2, textRect2)
-            self._display_surf.blit(result2, resRect2)
-            xl = 30
-            yl = 70
-
-            for i in range(0, self.player1.lives):
-                self._display_surf.blit(self.bonus_image, [xl, yl])
-                xl = xl + 25
-
-            xl = 680
-
-            for i in range(0, self.player2.lives):
-                self._display_surf.blit(self.bonus_image, [xl, yl])
-                xl = xl + 25
-            ######################################################################
+            self.player1.show_score(self.player1_name, self.level, 5, -5, 70, 30)
+            self.player2.show_score(self.player2_name, self.level, 650, -5, 720, 680)
 
             # iscrtavanje celog ekrana
             pygame.display.flip()
             self.clock.tick(config.fps)
+
+        player_one_process.kill()
 
         self.player1_bonus = self.player1.lives * 100
         self.player1_total_score += self.player1_bonus + self.player1_score
@@ -447,7 +526,7 @@ class Play():
         self.player2_bonus = self.player2.lives * 100
         self.player2_total_score += self.player2_bonus + self.player2_score
 
-
+        # turnir je isto sto i offline samo se ovo razlikuje
         if self.tournament:
             if (self.player1_dead or self.player2_dead) or (not self.player1_dead or not self.player2_dead):
                 self.game_over = True
@@ -475,6 +554,7 @@ class Play():
             pygame.time.delay(1000)
             self.show_result_multiplayer()
 
+    # za mrezu
     def establish_a_connection(self):
         self.n = ClientConnect()
         startPos = read_pos1(self.n.getPos())
@@ -499,6 +579,7 @@ class Play():
 
         self.two_players_online()
 
+    #
     def two_players_online(self):
         self.online_game = 1
         if self.show_bonus_timer is not None:
@@ -509,6 +590,7 @@ class Play():
         self.show_bonus_timer = Timer(5.0, self.show_bonus_timer_stopped)  # posle 5 sekundi prikazi srce
         self.show_bonus_timer.start()
 
+        #salje serveru da je client ready, pa da ovaj moze da ucita mapu
         self.n.client.send(str.encode("ready"))
         rec = self.n.client.recv(2048).decode()
 
@@ -534,6 +616,7 @@ class Play():
 
             if (not self.player1_dead and not self.player1_finished and self.me == 0) \
                     or (not self.player2_dead and not self.player2_finished and self.me == 1):
+                # da li sam ja onaj prvi ili onaj drugi igrac -> self.me
                 if self.me == 0:
                     if keys[pygame.K_LEFT]:
                         self.player1.movePlayer(-config.speed, 0, self.sprite_list)
@@ -571,6 +654,8 @@ class Play():
                     elif (self.gameTerrain[i][j]).fieldType == config.StaticEl.pathPlayer2:
                         self.screen.blit((self.gameTerrain[i][j]).image, (j * 50, i * 50))
             playerPosition = (0, 0)
+
+            # da iscrta onog drugog igraca kod mene
             if self.me == 0:
                 playerPosition = read_pos(self.n.send(make_pos((self.player1.rect.x, self.player1.rect.y))))
                 self.player2.rect.x = playerPosition[0]
@@ -620,6 +705,8 @@ class Play():
 
             self.check_muds()  # ja dodao by djole... dodavanje i provera za zamke da l su aktivne
 
+
+            #da li je neko nagazio na mud
             if (self.enemy1.rect.x == 650 and self.enemy1.rect.y == 300) or (
                     self.enemy2.rect.x == 650 and self.enemy2.rect.y == 300):
                 if self.mud1_status == 2:
@@ -740,37 +827,37 @@ class Play():
 
     def check_muds(self):
         # za prvu zamku ########################################3
-        if self.mud1_status == 1 or self.mud1_status == 2:
+        if self.mud1_status == MudState.show or self.mud1_status == MudState.active:
             self._display_surf.blit(self.mud1, [650, 300])
 
             if self.player1.rect.x == 650 and self.player1.rect.y == 300:
-                if self.mud1_status == 1:
-                    self.mud1_status = 2
+                if self.mud1_status == MudState.show:
+                    self.mud1_status = MudState.active
                     self.mud1_timer = Timer(10.0, self.mud1_timer_check)
                     self.mud1_timer.start()
 
         if self.number_of_players == 2:
             if self.player2.rect.x == 650 and self.player2.rect.y == 300:
-                if self.mud1_status == 1:
-                    self.mud1_status = 2
+                if self.mud1_status == MudState.show:
+                    self.mud1_status = MudState.active
                     self.mud1_timer = Timer(10.0, self.mud1_timer_check)
                     self.mud1_timer.start()
         #########################################################################
 
         #za drugu zamku##############################################
-        if self.mud2_status == 1 or self.mud2_status == 2:
+        if self.mud2_status == MudState.show or self.mud2_status == MudState.active:
             self._display_surf.blit(self.mud2, [350, 500])
 
             if self.player1.rect.x == 350 and self.player1.rect.y == 500:
-                if self.mud2_status == 1:
-                    self.mud2_status = 2
+                if self.mud2_status == MudState.show:
+                    self.mud2_status = MudState.active
                     self.mud2_timer = Timer(10.0, self.mud2_timer_check)
                     self.mud2_timer.start()
 
         if self.number_of_players == 2:
             if self.player2.rect.x == 650 and self.player2.rect.y == 300:
-                if self.mud2_status == 1:
-                    self.mud2_status = 2
+                if self.mud2_status == MudState.show:
+                    self.mud2_status = MudState.active
                     self.mud2_timer = Timer(10.0, self.mud2_timer_check)
                     self.mud2_timer.start()
         #########################################################################
@@ -808,11 +895,11 @@ class Play():
 
         # u paw track points na slici, ide sa trenutnog levela (promenljiva result), TO JE ODRADJENO
         # u level total na slici, ide sa trenutnog levela (promenljiva result)
-        result = font.render(str(self.player1_score), True, black) #trenutni level
+        result = font.render(str(self.player1.score), True, black) #trenutni level
         level_total = font.render(str(level_total), True, black)
 
         # u total na slici, ide sve ukupno (promenljiva total_results)
-        total_results = font.render(str(self.player1_total_score), True, black) #ukupno
+        total_results = font.render(str(self.player1.total_score), True, black) #ukupno
 
         resRect = result.get_rect()
         totalRect = total_results.get_rect()
@@ -834,6 +921,8 @@ class Play():
 
         wait_click_for_next_level = True  # za NEXT LEVEL
         wait_click_for_home = True  # za HOME
+
+        # dok ne klikne na new level ili exit
         while wait_click_for_next_level and wait_click_for_home:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -848,6 +937,7 @@ class Play():
                         pygame.time.delay(500)
                         wait_click_for_home = False
 
+        #ako je kliknuo na sledeci nivo
         if not wait_click_for_next_level:
             config.map_init(self.sprite_list)
             self.player1.rect.x = 400
@@ -892,16 +982,16 @@ class Play():
         self._display_surf.blit(textLevel, textRectLevel)
         # u can't catch me bonus na slici, ide broj preostalih zivota * 100
 
-        level_total = self.player1_score + self.player1_bonus
-        cant_catch_me_bonus = font.render(str(self.player1_bonus), True, black)
+        level_total = self.player1.score
+        cant_catch_me_bonus = font.render(str(self.player1.lives * 100), True, black)
 
         # u paw track points na slici, ide sa trenutnog levela (promenljiva result), TO JE ODRADJENO
         # u level total na slici, ide sa trenutnog levela (promenljiva result)
-        result = font.render(str(self.player1_score), True, black)  # trenutni level
+        result = font.render(str(self.player1.score), True, black)  # trenutni level
         level_total = font.render(str(level_total), True, black)
 
         # u total na slici, ide sve ukupno (promenljiva total_results)
-        total_results = font.render(str(self.player1_total_score), True, black)  # ukupno
+        total_results = font.render(str(self.player1.total_score), True, black)  # ukupno
 
         resRect = result.get_rect()
         totalRect = total_results.get_rect()
@@ -936,8 +1026,10 @@ class Play():
     def show_result_multiplayer_online(self):
         if self.online_game == 1:
             if self.me == 0:
+                # saljem moje koordinate onom prvom
                 self.n.send(make_pos((self.player1.rect.x, self.player1.rect.y)))
             else:
+                # saljem koordinate onom nultom
                 self.n.send(make_pos((self.player2.rect.x, self.player2.rect.y)))
             self.n.client.send(str.encode("finished"))
 
@@ -1336,7 +1428,9 @@ class Play():
                 #config.speed_enemy += 1
                 config.map_init(self.sprite_list)
                 if self.player1_dead:
-                    self.player1 = Player(config.simba, 5, 50, 50, 400, 400, self.gameTerrain)
+                    playerPom1 = Player(1)
+                    self.player1 = PlayerRender (400, 400, playerPom1, StaticEl.pathPlayer1, self.screen, config.simba,
+                                                 50, 50, self.gameTerrain, self.sprite_list, self._display_surf)
                     self.sprite_list.add(self.player1)
                     self.player1_dead = False
 
@@ -1347,7 +1441,9 @@ class Play():
                 self.player1_finished = False
 
                 if self.player2_dead:
-                    self.player2 = Player(config.nala, 6, 50, 50, 500, 400, self.gameTerrain)
+                    playerPom2 = Player (2)
+                    self.player2 = PlayerRender (500, 400, playerPom2, StaticEl.pathPlayer2, self.screen, config.simba,
+                                                 50, 50, self.gameTerrain, self.sprite_list, self._display_surf)
                     self.sprite_list.add(self.player2)
                     self.player2_dead = False
 
@@ -1549,6 +1645,7 @@ class Play():
                 return
 
     def initialize_tournament(self):
+        # 2 4 6 8 igraca?
         self.users = [{} for i in range(self.number_of_players)] #koliko ima igraca toliko ide u niz
 
         for i in range(0, self.number_of_players): #ubacimo sve igrace u niz
@@ -1575,6 +1672,8 @@ class Play():
                 else:
                     return
             self.number_of_winners = self.number_of_players // 2
+
+        # ako ih ima neparan broj onaj poslednji ide u finale
         else:
             for i in range(0, self.number_of_players-1, 2):
                 self.player1_name = self.users[i]['name']

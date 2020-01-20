@@ -46,6 +46,11 @@ enter = pygame.transform.scale(enter, (50, 50))
 app_path = os.path.dirname(__file__)+'/'
 files_path = app_path + 'img/'
 
+# table for score
+table_for_score = pygame.image.load("img/Tabla.png")
+table_for_score = pygame.transform.scale(table_for_score, (150, 115))
+heart = pygame.image.load ("img/Heart.png")
+
 # ########################################   ENUMS   ################################################
 
 
@@ -104,18 +109,20 @@ gameMap = [
 
 
 # ######################################   INITMAP   ##############################################
-gameTerrain = [[GameStaticObject(StaticEl.none, path, 0, 0, 0, 0) for j in range(16)]for i in range(12)]
+gameTerrain = [[GameStaticObjectRender(StaticEl.none, path, 0, 0, 0, 0) for j in range(16)]for i in range(12)]
+gameTerrainSerializable = [[GameStaticObject(path) for l in range(16)]for k in range(12)]
 
 def map_init(sprite_list):
     for i in range(0, 12):
         for j in range(0, 16):
             if gameMap[i][j] == StaticEl.wall:
-                obj = GameStaticObject(StaticEl.wall, wall, 50, 50, j * 50, i * 50, False)
+                obj = GameStaticObjectRender(StaticEl.wall, wall, 50, 50, j * 50, i * 50, False)
                 sprite_list.add(obj)
                 gameTerrain[i][j] = obj
+                gameTerrainSerializable[i][j] = obj.game_static_object
 
             elif gameMap[i][j] == StaticEl.path:
-                obj = GameStaticObject(StaticEl.path, path, 50, 50, j * 50, i * 50, True)
+                obj = GameStaticObjectRender(StaticEl.path, path, 50, 50, j * 50, i * 50, True)
 
                 if i-1 > -1 and gameMap[i-1][j] == StaticEl.path:
                     obj.insertOrientation(Orientation.up)
@@ -128,30 +135,32 @@ def map_init(sprite_list):
 
                 obj.crossroadCheck()
                 gameTerrain[i][j] = obj
+                gameTerrainSerializable[i][j] = obj.game_static_object
 
             elif gameMap[i][j] == StaticEl.enter:
-                obj = GameStaticObject(StaticEl.enter, enter, 50, 50, j * 50, i * 50, True)
+                obj = GameStaticObjectRender(StaticEl.enter, enter, 50, 50, j * 50, i * 50, True)
                 gameTerrain[i][j] = obj
+                gameTerrainSerializable[i][j] = obj.game_static_object
 
 
     # popravka da igraci ne izlaze van mape
     i = -1
     for j in range(0, 16):
-        obj = GameStaticObject(StaticEl.wall, wall, 50, 50, j * 50, i * 50)
+        obj = GameStaticObjectRender(StaticEl.wall, wall, 50, 50, j * 50, i * 50)
         sprite_list.add(obj)
     i = 12
     for j in range(0, 16):
-        obj = GameStaticObject(StaticEl.wall, wall, 50, 50, j * 50, i * 50)
+        obj = GameStaticObjectRender(StaticEl.wall, wall, 50, 50, j * 50, i * 50)
         sprite_list.add(obj)
     j = -1
     for i in range(0, 12):
-        obj = GameStaticObject(StaticEl.wall, wall, 50, 50, j * 50, i * 50)
+        obj = GameStaticObjectRender(StaticEl.wall, wall, 50, 50, j * 50, i * 50)
         sprite_list.add(obj)
     j = 16
     for i in range(0, 12):
         if i == 11:
-            obj = GameStaticObject(StaticEl.exit, wall, 50, 50, j * 50, i * 50)
+            obj = GameStaticObjectRender(StaticEl.exit, wall, 50, 50, j * 50, i * 50)
         else:
-            obj = GameStaticObject(StaticEl.wall, wall, 50, 50, j * 50, i * 50)
+            obj = GameStaticObjectRender(StaticEl.wall, wall, 50, 50, j * 50, i * 50)
 
         sprite_list.add(obj)
