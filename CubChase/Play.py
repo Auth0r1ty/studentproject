@@ -167,17 +167,12 @@ class Play():
         self.show_bonus_timer = Timer(4.0, self.show_bonus_timer_stopped)
         self.show_bonus_timer.start()
 
-    # set enemy speed depend on level
+    # u zavisnosti od level-a setuje se brzina enemy-a
     def set_enemy_speed(self):
-        '''
-                OVDE DEXOVA LOGIKA ZA ENEMY SPEED, tamo uvecamo level ovde ispitujemo
-
-                '''
-
         if self.level == 2:
-            self.enemy1.enemy.speed = 2
+            self.enemy1.enemy.speed = 5
             if self.number_of_players == 2:
-                self.enemy2.enemy.speed = 2
+                self.enemy2.enemy.speed = 5
         elif self.level == 3:
             self.enemy1.enemy.speed = 2
             if self.number_of_players == 2:
@@ -185,15 +180,15 @@ class Play():
         elif self.level == 4:
             self.enemy1.enemy.speed = 5
             if self.number_of_players == 2:
-                self.enemy2.enemy.speed = 2
+                self.enemy2.enemy.speed = 5
         elif self.level == 5:
             self.enemy1.enemy.speed = 5
             if self.number_of_players == 2:
-                self.enemy2.enemy.speed = 2
+                self.enemy2.enemy.speed = 5
         elif self.level >= 6:
             self.enemy1.enemy.speed = 10
             if self.number_of_players == 2:
-                self.enemy2.enemy.speed = 2
+                self.enemy2.enemy.speed = 10
 
     def one_player(self):
         if self.show_bonus_timer is not None:
@@ -207,21 +202,13 @@ class Play():
         player_one_queue_receive = Queue()     # red sa kod skida
         player_one_queue_send = Queue()    # red na koji radi PUSH
 
-        '''
-        OVDE DEXOVA LOGIKA ZA ENEMY SPEED, tamo uvecamo level ovde ispitujemo
-        
-        '''
-
-        self.set_enemy_speed()
-
-
-
-
         player_one_process = Process(target=self.player1.player.run_player, args=[player_one_queue_receive, player_one_queue_send])
         player_one_process.start()
 
         enemy_one_queue_receive = Queue ()  # red sa kod skida
         enemy_one_queue_send = Queue ()  # red na koji radi PUSH
+
+        self.set_enemy_speed()
 
         enemy_one_process = Process (target=self.enemy1.enemy.run_enemy, args=[enemy_one_queue_receive, enemy_one_queue_send])
         enemy_one_process.start ()
@@ -341,9 +328,7 @@ class Play():
         self.player1_total_score += self.player1_bonus + self.player1.score
 
         player_one_process.terminate()
-        #player_one_process.kill()  #ovo ne radi kod mene
         enemy_one_process.terminate()
-        #enemy_one_process.kill()
         #ako pritisne x ili 'x'
         if not self.rage_quit and not self.game_over:
             pygame.time.delay(500)
@@ -386,7 +371,7 @@ class Play():
         # u paw track points na slici, ide sa trenutnog levela (promenljiva result), TO JE ODRADJENO
         # u level total na slici, ide sa trenutnog levela (promenljiva result)
         result = font.render(str(self.player1.score), True, black) #trenutni level
-        level_total = font.render(str(level_total), True, black)    #score from game + bonus
+        level_total = font.render(str(level_total), True, black)
 
         # u total na slici, ide sve ukupno (promenljiva total_results)
         total_results = font.render(str(self.player1_total_score), True, black) #ukupno
@@ -448,11 +433,7 @@ class Play():
             self.mud1_timer = None
             self.mud2_status = MudState.show  # ako ima vrednost 1, prikazi zamku, ako je 2 aktivna je, ako je 0 vec je iskoriscena
             self.mud2_timer = None
-            '''
-            
-            OVDE JE PROBLEM STO KADA SE KREIRA NOVI PROCES ON VUCE STARE PODATKE IZ CONFIG FAJLA, DZABE GA MENJAMO
-            
-            '''
+
             self.one_player()
 
     def show_game_over(self): #za jednog igraca tj single player
@@ -542,7 +523,7 @@ class Play():
         player_two_process.start ()
 
 
-        self.set_enemy_speed()
+        self.set_enemy_speed ()
 
         enemy_one_queue_receive = Queue ()  # red sa kod skida
         enemy_one_queue_send = Queue ()  # red na koji radi PUSH
@@ -575,7 +556,7 @@ class Play():
                 self.sprite_list.remove(self.player1)
                 self.player1.player.finished = True
                 self.player1_dead = True
-                player_one_process.kill()
+                player_one_process.terminate()
 
             if self.player2.lives == 0:
                 #broj_cekiranih += self.player2.path_checked
@@ -583,7 +564,7 @@ class Play():
                 self.sprite_list.remove(self.player2)
                 self.player2.player.finished = True
                 self.player2_dead = True
-                player_two_process.kill()
+                player_two_process.terminate()
 
             if not self.player1.player.finished:
                 player_one_queue_send.put(self.player1.player.finished)
@@ -827,10 +808,10 @@ class Play():
             pygame.display.flip()
             self.clock.tick(config.fps)
 
-        player_one_process.kill()
-        player_two_process.kill()
-        enemy_one_process.kill()
-        enemy_two_process.kill()
+        player_one_process.terminate()
+        player_two_process.terminate()
+        enemy_one_process.terminate()
+        enemy_two_process.terminate()
         self.player1_bonus = self.player1.lives * 100
         self.player1_total_score += self.player1_bonus + self.player1.score
 
@@ -1028,6 +1009,17 @@ class Play():
                 self.enemy2.rect.y = 50
 
                 self.level += 1
+
+                if self.level == 2:
+                    config.speed_enemy = 2
+                elif self.level == 3:
+                    config.speed_enemy = 2
+                elif self.level == 4:
+                    config.speed_enemy = 5
+                elif self.level == 5:
+                    config.speed_enemy = 5
+                elif self.level >= 6:
+                    config.speed_enemy = 10
 
                 self.show_bonus = False
                 self.heart_counter = 0
@@ -1250,35 +1242,37 @@ class Play():
         if self.hide_bonus_timer is not None:
             self.hide_bonus_timer.cancel()
 
-        player_one_queue_receive = Queue()  # red sa kod player 1 skida
-        player_one_queue_send = Queue()  # red na koji player 1 radi PUSH
+        player_one_queue_receive = Queue()  # red sa kod skida
+        player_one_queue_send = Queue()  # red na koji radi PUSH
+
+        enemy_one_queue_receive = Queue ()  # red sa kod skida
+        enemy_one_queue_send = Queue ()  # red na koji radi PUSH
+
+        enemy_two_queue_receive = Queue ()  # red sa kod skida
+        enemy_two_queue_send = Queue ()  # red na koji radi PUSH
 
         if self.me == 0:
             player_one_process = Process(target=self.player1.player.run_player, args=[player_one_queue_receive, player_one_queue_send])
+
+            enemy_one_process = Process (target=self.enemy1.enemy.run_enemy,
+                                         args=[enemy_one_queue_receive, enemy_one_queue_send])
+
+            enemy_two_process = Process (target=self.enemy2.enemy.run_enemy,
+                                         args=[enemy_two_queue_receive, enemy_two_queue_send])
+
+            enemy_one_process.start ()
+            enemy_two_process.start ()
         else:
             player_one_process = Process(target=self.player2.player.run_player, args=[player_one_queue_receive, player_one_queue_send])
 
 
-        enemy_one_queue_receive = Queue()  # red sa kod skida
-        enemy_one_queue_send = Queue()  # red na koji radi PUSH
-        enemy_one_process = Process(target=self.enemy1.enemy.run_enemy,
-                                   args=[enemy_one_queue_receive, enemy_one_queue_send])
-
-        enemy_two_queue_receive = Queue()  # red sa kod skida
-        enemy_two_queue_send = Queue()  # red na koji radi PUSH
-        enemy_two_process = Process(target=self.enemy2.enemy.run_enemy,
-                                    args=[enemy_two_queue_receive, enemy_two_queue_send])
 
         player_one_process.start()
-        enemy_one_process.start()
-        enemy_two_process.start()
 
-        while not player_one_process.is_alive() or not enemy_one_process.is_alive() or not enemy_two_process.is_alive():
-            pass
 
-            # salje serveru da je client ready, pa da ovaj moze da ucita mapu
+        # salje serveru da je client ready, pa da ovaj moze da ucita mapu
         self.n.client.send(str.encode("ready"))
-        rec = self.n.client.recv(2048).decode()
+        #rec = self.n.client.recv(2048).decode()
 
         self.show_bonus_timer = Timer(5.0, self.show_bonus_timer_stopped)  # posle 5 sekundi prikazi srce
         self.show_bonus_timer.start()
@@ -1289,32 +1283,27 @@ class Play():
         start_time_enemy2 = None
 
         while not self.player1.player.finished or not self.player2.player.finished:
-            pygame.time.delay(25)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.player1.player.finished = True
                     self.player2.player.finished = True
                     self.rage_quit = True
 
-            if self.me == 0:
-                if self.player1.lives == 0:
-                    #broj_cekiranih += self.player1.path_checked
-                    self.player1.image = None
-                    self.sprite_list.remove(self.player1)
-                    self.player1.player.finished = True
-                    self.player1_dead = True
-                    #player_one_process.kill()
-                    player_one_process.terminate()
-            else:
-                if self.player2.lives == 0:
-                    #broj_cekiranih += self.player2.path_checked
-                    self.player2.image = None
-                    self.sprite_list.remove(self.player2)
-                    self.player2.player.finished = True
-                    self.player2_dead = True
-                    #player_one_process.kill()
-                    player_one_process.terminate()
-            # ako p1 nije mrtav i ako p1 nije presao nivo i ako sam ja p1
+            if self.player1.lives == 0:
+                #broj_cekiranih += self.player1.path_checked
+                self.player1.image = None
+                self.sprite_list.remove(self.player1)
+                self.player1.player.finished = True
+                self.player1_dead = True
+                player_one_process.terminate()
+            if self.player2.lives == 0:
+                #broj_cekiranih += self.player2.path_checked
+                self.player2.image = None
+                self.sprite_list.remove(self.player2)
+                self.player2.player.finished = True
+                self.player2_dead = True
+                player_one_process.terminate()
+
             if (not self.player1_dead and not self.player1_finished and self.me == 0) \
                     or (not self.player2_dead and not self.player2_finished and self.me == 1):
                 # da li sam ja onaj prvi ili onaj drugi igrac -> self.me
@@ -1333,8 +1322,9 @@ class Play():
                         self.player1.collision(temp[0], temp[1])
                         self.player1.player.x = temp[0]
                         self.player1.player.y = temp[1]
+
                     self.player1.draw_map()
-                else:   # self.me == 1
+                else:
                     player_one_queue_send.put(self.player2.player.finished)
 
                     player_result = player_one_queue_receive.get()
@@ -1343,47 +1333,59 @@ class Play():
                     list = player_result[0]
                     self.player2.player.finished = player_result[1]
 
+                         # if self.player1.player.finished:
+                         # self.rage_quit = True
+                         # self.game_over = True
+
                     for temp in list:
                         self.player2.leave_tracks(temp[0], temp[1])
                         self.player2.move_player(temp[0], temp[1])
                         self.player2.collision(temp[0], temp[1])
                         self.player2.player.x = temp[0]
                         self.player2.player.y = temp[1]
+
                     self.player2.draw_map()
 
+
             game_terrain = config.gameTerrainSerializable
+            playerPosition = (0, 0)
 
-            # da iscrta onog drugog igraca kod mene
+            #####
             if self.me == 0:
-                # cita tudju a ujedno i salje svoj i tudji POMERAJ
-                playerPosition = read_pos(self.n.send(make_pos((self.player1.player.x, self.player1.player.y))))
+                if step_in_mud_enemy1:
+                    if start_time_enemy1 <= datetime.datetime.now () - datetime.timedelta (seconds=5):
+                        step_in_mud_enemy1 = False
+                        self.player1.enemy_traped = False
+                        self.player2.enemy_traped = False
+                        self.enemy1.step_in_mud = False
 
-                '''
-                OVDE GLEDAJ
-                '''
-                self.player2.move_player(playerPosition[0], playerPosition[1])
-                #self.player2.leave_tracks(playerPosition[0], playerPosition[1])
-                self.player2.draw_map()
+                        if not self.player1.player.finished:
+                            enemy_one_queue_send.put ([self.player1.player.finished,
+                                                       (self.player1.rect.x, self.player1.rect.y),
+                                                       (self.enemy1.rect.x, self.enemy1.rect.y),
+                                                       game_terrain])
 
-                self.player1.player.x = 0
-                self.player1.player.y = 0
-            else:
-                playerPosition = read_pos(self.n.send(make_pos((self.player2.player.x, self.player2.player.y))))
+                            enemy_result = enemy_one_queue_receive.get ()
 
-                self.player1.move_player(playerPosition[0], playerPosition[1])
-                #self.player1.leave_tracks(playerPosition[0], playerPosition[1])
-                self.player1.draw_map()
+                            self.enemy1.moveEnemy (enemy_result[0], enemy_result[1])
+                            self.enemy1.collision (enemy_result[0], enemy_result[1])
 
-                self.player1.player.x = 0
-                self.player1.player.y = 0
+                            self.enemy1.enemy.x = enemy_result[0]
+                            self.enemy1.enemy.y = enemy_result[1]
+                        else:
+                            enemy_one_queue_send.put([self.player2.player.finished,
+                                                      (self.player2.rect.x, self.player2.rect.y),
+                                                      (self.enemy1.rect.x, self.enemy1.rect.y),
+                                                      game_terrain])
 
-            if step_in_mud_enemy1:
-                if start_time_enemy1 <= datetime.datetime.now () - datetime.timedelta (seconds=5):
-                    step_in_mud_enemy1 = False
-                    self.player1.enemy_traped = False
-                    self.player2.enemy_traped = False
-                    self.enemy1.step_in_mud = False
+                            enemy_result = enemy_one_queue_receive.get()
 
+                            self.enemy1.moveEnemy(enemy_result[0], enemy_result[1])
+                            self.enemy1.collision(enemy_result[0], enemy_result[1])
+
+                            self.enemy1.enemy.x = enemy_result[0]
+                            self.enemy1.enemy.y = enemy_result[1]
+                else:
                     if not self.player1.player.finished:
                         enemy_one_queue_send.put ([self.player1.player.finished,
                                                    (self.player1.rect.x, self.player1.rect.y),
@@ -1394,46 +1396,60 @@ class Play():
 
                         self.enemy1.moveEnemy (enemy_result[0], enemy_result[1])
                         self.enemy1.collision (enemy_result[0], enemy_result[1])
+
+                        self.enemy1.enemy.x = enemy_result[0]
+                        self.enemy1.enemy.y = enemy_result[1]
                     else:
                         enemy_one_queue_send.put([self.player2.player.finished,
                                                   (self.player2.rect.x, self.player2.rect.y),
-                                                  (self.enemy2.rect.x, self.enemy2.rect.y),
+                                                  (self.enemy1.rect.x, self.enemy1.rect.y),
                                                   game_terrain])
 
                         enemy_result = enemy_one_queue_receive.get()
 
                         self.enemy1.moveEnemy(enemy_result[0], enemy_result[1])
                         self.enemy1.collision(enemy_result[0], enemy_result[1])
-            else:
-                if not self.player1.player.finished:
-                    enemy_one_queue_send.put ([self.player1.player.finished,
-                                               (self.player1.rect.x, self.player1.rect.y),
-                                               (self.enemy1.rect.x, self.enemy1.rect.y),
-                                               game_terrain])
 
-                    enemy_result = enemy_one_queue_receive.get ()
+                        self.enemy1.enemy.x = enemy_result[0]
+                        self.enemy1.enemy.y = enemy_result[1]
 
-                    self.enemy1.moveEnemy (enemy_result[0], enemy_result[1])
-                    self.enemy1.collision (enemy_result[0], enemy_result[1])
+                #################
+                if step_in_mud_enemy2:
+                    if start_time_enemy2 <= datetime.datetime.now () - datetime.timedelta (seconds=5):
+                        step_in_mud_enemy2 = False
+                        self.player1.enemy_traped = False
+                        self.player2.enemy_traped = False
+                        self.enemy2.step_in_mud = False
+
+                        if not self.player2.player.finished:
+                            enemy_two_queue_send.put ([self.player2.player.finished,
+                                                       (self.player2.rect.x, self.player2.rect.y),
+                                                       (self.enemy2.rect.x, self.enemy2.rect.y),
+                                                       game_terrain])
+
+                            enemy_result = enemy_two_queue_receive.get ()
+
+                            self.enemy2.moveEnemy (enemy_result[0], enemy_result[1])
+                            self.enemy2.collision (enemy_result[0], enemy_result[1])
+
+                            self.enemy2.enemy.x = enemy_result[0]
+                            self.enemy2.enemy.y = enemy_result[1]
+
+                        else:
+                            enemy_two_queue_send.put([self.player1.player.finished,
+                                                      (self.player1.rect.x, self.player1.rect.y),
+                                                      (self.enemy2.rect.x, self.enemy2.rect.y),
+                                                      game_terrain])
+
+                            enemy_result = enemy_two_queue_receive.get()
+
+                            self.enemy2.moveEnemy(enemy_result[0], enemy_result[1])
+                            self.enemy2.collision(enemy_result[0], enemy_result[1])
+
+                            self.enemy2.enemy.x = enemy_result[0]
+                            self.enemy2.enemy.y = enemy_result[1]
+
                 else:
-                    enemy_one_queue_send.put([self.player2.player.finished,
-                                              (self.player2.rect.x, self.player2.rect.y),
-                                              (self.enemy2.rect.x, self.enemy2.rect.y),
-                                              game_terrain])
-
-                    enemy_result = enemy_one_queue_receive.get()
-
-                    self.enemy1.moveEnemy(enemy_result[0], enemy_result[1])
-                    self.enemy1.collision(enemy_result[0], enemy_result[1])
-
-            #################
-            if step_in_mud_enemy2:
-                if start_time_enemy2 <= datetime.datetime.now () - datetime.timedelta (seconds=5):
-                    step_in_mud_enemy2 = False
-                    self.player1.enemy_traped = False
-                    self.player2.enemy_traped = False
-                    self.enemy2.step_in_mud = False
-
                     if not self.player2.player.finished:
                         enemy_two_queue_send.put ([self.player2.player.finished,
                                                    (self.player2.rect.x, self.player2.rect.y),
@@ -1444,38 +1460,52 @@ class Play():
 
                         self.enemy2.moveEnemy (enemy_result[0], enemy_result[1])
                         self.enemy2.collision (enemy_result[0], enemy_result[1])
+
+                        self.enemy2.enemy.x = enemy_result[0]
+                        self.enemy2.enemy.y = enemy_result[1]
+
                     else:
                         enemy_two_queue_send.put([self.player1.player.finished,
                                                   (self.player1.rect.x, self.player1.rect.y),
-                                                  (self.enemy1.rect.x, self.enemy1.rect.y),
+                                                  (self.enemy2.rect.x, self.enemy2.rect.y),
                                                   game_terrain])
 
                         enemy_result = enemy_two_queue_receive.get()
 
                         self.enemy2.moveEnemy(enemy_result[0], enemy_result[1])
                         self.enemy2.collision(enemy_result[0], enemy_result[1])
+
+                        self.enemy2.enemy.x = enemy_result[0]
+                        self.enemy2.enemy.y = enemy_result[1]
+
+            # da iscrta onog drugog igraca kod mene
+            if self.me == 0:
+                playerPosition = read_pos(self.n.send(make_pos((self.player1.rect.x, self.player1.rect.y, self.player1.player.x, self.player1.player.y,
+                                                                self.enemy1.rect.x, self.enemy1.rect.y,
+                                                                self.enemy2.rect.x, self.enemy2.rect.y,
+                                                                self.player1.lives, self.player2.lives))))
+                self.player2.rect.x = playerPosition[0]
+                self.player2.rect.y = playerPosition[1]
+                self.player2.lives = playerPosition[9]
+                self.player2.leave_tracks(playerPosition[2], playerPosition[3])
+                self.player2.draw_map ()
             else:
-                if not self.player2.player.finished:
-                    enemy_two_queue_send.put ([self.player2.player.finished,
-                                               (self.player2.rect.x, self.player2.rect.y),
-                                               (self.enemy2.rect.x, self.enemy2.rect.y),
-                                               game_terrain])
+                playerPosition = read_pos(self.n.send(make_pos((self.player2.rect.x, self.player2.rect.y, self.player2.player.x, self.player2.player.y,
+                                                                0, 0,
+                                                                0, 0,
+                                                                self.player1.lives, self.player2.lives))))
+                self.player1.rect.x = playerPosition[0]
+                self.player1.rect.y = playerPosition[1]
+                self.player1.lives = playerPosition[8]
+                self.player1.leave_tracks (playerPosition[2], playerPosition[3])
+                self.player1.draw_map ()
 
-                    enemy_result = enemy_two_queue_receive.get ()
+                self.player2.lives = playerPosition[9]
 
-                    self.enemy2.moveEnemy (enemy_result[0], enemy_result[1])
-                    self.enemy2.collision (enemy_result[0], enemy_result[1])
-                else:
-                    enemy_two_queue_send.put([self.player1.player.finished,
-                                              (self.player1.rect.x, self.player1.rect.y),
-                                              (self.enemy1.rect.x, self.enemy1.rect.y),
-                                              game_terrain])
-
-                    enemy_result = enemy_two_queue_receive.get()
-
-                    self.enemy2.moveEnemy(enemy_result[0], enemy_result[1])
-                    self.enemy2.collision(enemy_result[0], enemy_result[1])
-
+                self.enemy1.rect.x = playerPosition[4]
+                self.enemy1.rect.y = playerPosition[5]
+                self.enemy2.rect.x = playerPosition[6]
+                self.enemy2.rect.y = playerPosition[7]
 
             # iscrtavanje svih sprit-ova (igraci, zid)
             self.sprite_list.update()
@@ -1549,9 +1579,9 @@ class Play():
             #self.n.send(make_pos((self.enemy2.rect.x, self.enemy2.rect.y)))
 
 
-        player_one_process.kill()
-        enemy_one_process.kill()
-        enemy_two_process.kill()
+        player_one_process.terminate()
+        enemy_one_process.terminate()
+        enemy_two_process.terminate()
         self.player1_bonus = self.player1.lives * 100
         self.player1_total_score += self.player1_bonus + self.player1.score
 
@@ -1994,28 +2024,13 @@ class Play():
                         self.tournament_finished = True
                     self.show_game_over_multiplayer()  # napravi funkciju
 
-
-#ovo nam nece trebati jer ova dole radi za koliko god paramtetara
 def read_pos1(str):
     str = str.split(",")
     return int(str[0]), int(str[1]), int(str[2])
 
-
 def read_pos(str):
     str = str.split(",")
-    result = []
-
-    for i in range(len(str)):
-        result.append(int(str[i]))
-
-
-    return result
-
+    return int(str[0]), int(str[1]), int(str[2]), int(str[3]), int(str[4]), int(str[5]), int(str[6]), int(str[7]), int(str[8]), int(str[9])
 
 def make_pos(tup):
-    result = ''
-    for i in range(len(tup)):
-        result += str(tup[i])
-        if i < len(tup)-1:
-            result += ','
-    return result
+    return str(tup[0]) + "," + str(tup[1]) + "," + str(tup[2]) + "," + str(tup[3]) + "," + str(tup[4]) + "," + str(tup[5]) + "," + str(tup[6]) + "," + str(tup[7]) + "," + str(tup[8]) + "," + str(tup[9])

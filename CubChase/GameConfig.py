@@ -17,36 +17,20 @@ path = pygame.image.load("img/sand_empty.png")
 path = pygame.transform.scale(path, (50, 50))
 
 # define player1, player2 image and their path
-simba = [pygame.image.load("img/Player1Left.png"),pygame.image.load("img/Player1Right.png")
-         ,pygame.image.load("img/Player1Up.png"),pygame.image.load("img/Player1Down.png")]
-simba[0] = pygame.transform.scale(simba[0] , (50, 50))
-simba[1] = pygame.transform.scale(simba[1], (50, 50))
-simba[2] = pygame.transform.scale(simba[2], (50, 50))
-simba[3] = pygame.transform.scale(simba[3] , (50, 50))
+simba = pygame.image.load("img/simba.png")
+simba = pygame.transform.scale(simba, (50, 50))
 
 #player2
-nala = [pygame.image.load("img/Player2Left.png"),pygame.image.load("img/Player2Right.png")
-         ,pygame.image.load("img/Player2Up.png"),pygame.image.load("img/Player2Down.png")]
-nala[0] = pygame.transform.scale(nala[0] , (50, 50))
-nala[1] = pygame.transform.scale(nala[1], (50, 50))
-nala[2] = pygame.transform.scale(nala[2], (50, 50))
-nala[3] = pygame.transform.scale(nala[3] , (50, 50))
+nala = pygame.image.load("img/nala.png")
+nala = pygame.transform.scale(nala, (50, 50))
 
 #enemy1
-pumba = [pygame.image.load("img/EnemyLeft.png"),pygame.image.load("img/EnemyRight.png")
-         ,pygame.image.load("img/EnemyUp.png"),pygame.image.load("img/EnemyDown.png")]
-pumba[0] = pygame.transform.scale(pumba[0] , (50, 50))
-pumba[1] = pygame.transform.scale(pumba[1], (50, 50))
-pumba[2] = pygame.transform.scale(pumba[2], (50, 50))
-pumba[3] = pygame.transform.scale(pumba[3] , (50, 50))
+pumba = pygame.image.load("img/Pumba.png")
+pumba = pygame.transform.scale(pumba, (50, 50))
 
 #enemy2
-timon = [pygame.image.load("img/EnemyLeft.png"),pygame.image.load("img/EnemyRight.png")
-         ,pygame.image.load("img/EnemyUp.png"),pygame.image.load("img/EnemyDown.png")]
-timon[0] = pygame.transform.scale(timon[0] , (50, 50))
-timon[1] = pygame.transform.scale(timon[1], (50, 50))
-timon[2] = pygame.transform.scale(timon[2], (50, 50))
-timon[3] = pygame.transform.scale(timon[3] , (50, 50))
+timon = pygame.image.load("img/Timon.png")
+timon = pygame.transform.scale(timon, (50, 50))
 
 pathPlayer1 = pygame.image.load("img/sand_blue.png")
 pathPlayer1 = pygame.transform.scale(pathPlayer1, (50, 50))
@@ -79,7 +63,7 @@ height = 600
 width = 800
 speed = 5
 fps = 60
-speed_enemy = 1
+speed_enemy = 2
 
 #ja menjao mapu by DJOLE
 gameMap = [

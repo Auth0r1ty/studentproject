@@ -22,15 +22,31 @@ def read_pos(str):
     str = str.split(",")
     return int(str[0]), int(str[1])
 
-
 def make_pos(tup):
     return str(tup[0]) + "," + str(tup[1])
 
+def read_pomeraj(str):
+    str = str.split (",")
+    return int (str[2]), int (str[3])
+
+def read_enemy1(str):
+    str = str.split(",")
+    return int (str[4]), int (str[5])
+
+def read_enemy2(str):
+    str = str.split(",")
+    return int (str[6]), int (str[7])
+
+def read_lives(str):
+    str = str.split (",")
+    return int (str[8]), int (str[9])
 
 pos = [(400,400),(500,400)]
 names = ["none", "none"]
 ready = ["0", "0"]
-
+pomeraj = [(0,0),(0,0)]
+enemy =[(300,50),(500,50)]
+lives = [(0,0)]
 
 def threaded_client(conn, player):
     while currentPlayer != 2:
@@ -70,7 +86,7 @@ def threaded_client(conn, player):
         while ready[0] == "0" or ready[1] == "0":
             pass
 
-        conn.send(str.encode("go"))
+        #conn.send(str.encode("go"))
         reply = ""
         levelChanged = False
         while not levelChanged:
@@ -81,22 +97,37 @@ def threaded_client(conn, player):
                     ready[player] = "0"
                     print("Level passed from " + str(player))
                 else:
-                    data = read_pos(data)
-                    pos[player] = data
+                    data2 = read_pos(data)
+                    pos[player] = data2
+
+                    dataPomeraj = read_pomeraj(data)
+                    pomeraj[player] = dataPomeraj
+
+                    live = read_lives(data)
+                    lives[0] = live
 
                     if not data:
                         print("Disconnected")
                         break
                     else:
                         if player == 1:
-                            reply = pos[0]
+                            message = make_pos(pos[0]) + "," + make_pos(pomeraj[0]) + "," + make_pos(enemy[0]) + "," + make_pos(enemy[1]) + "," + make_pos(live)
+                            conn.sendall(str.encode(message))
+                            #reply = pos[0]
                         else:
-                            reply = pos[1]
+                            dataEnemy1 = read_enemy1 (data)
+                            enemy[0] = dataEnemy1
+
+                            dataEnemy2 = read_enemy2 (data)
+                            enemy[1] = dataEnemy2
+
+                            message = make_pos (pos[1]) + "," + make_pos (pomeraj[1]) + "," + make_pos(enemy[0]) + "," + make_pos(enemy[1]) + "," + make_pos(live)
+                            conn.sendall (str.encode (message))
 
                         print("Received: ", data)
                         print("Sending : ", reply)
 
-                    conn.sendall(str.encode(make_pos(reply)))
+                    #conn.sendall(str.encode(make_pos(reply)))
 
             except:
                 break

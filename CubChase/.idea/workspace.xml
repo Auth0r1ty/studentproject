@@ -38,14 +38,14 @@
     </option>
   </component>
   <component name="RunManager" selected="Python.Main">
-    <configuration name="Main" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration name="Main" type="PythonConfigurationType" factoryName="Python" singleton="false" temporary="true">
       <module name="CubChase" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
-      <option name="SDK_HOME" value="" />
+      <option name="SDK_HOME" value="D:\Program Files\Python38-32\python.exe" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
       <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
@@ -80,6 +80,10 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <list>
+      <item itemvalue="Python.Main" />
+      <item itemvalue="Python.ServerConnect" />
+    </list>
     <recent_temporary>
       <list>
         <item itemvalue="Python.Main" />
@@ -112,5 +116,15 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="XDebuggerManager">
+    <watches-manager>
+      <configuration name="PythonConfigurationType">
+        <watch expression="self.enemy1.enemy.x" />
+        <watch expression="self.enemy1.enemy.y" />
+        <watch expression="self.enemy2.enemy.x" />
+        <watch expression="self.enemy2.enemy.y" />
+      </configuration>
+    </watches-manager>
   </component>
 </project>
